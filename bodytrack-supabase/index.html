@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="th" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#6366f1">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="BodyTrack">
+  <meta name="format-detection" content="telephone=no">
+  <title>BodyTrack — Weight & Waist Tracker</title>
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="./icons/apple-touch-icon.png">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'Sarabun', 'system-ui', 'sans-serif'] },
+          boxShadow: {
+            'soft': '0 4px 20px -2px rgba(0,0,0,0.05), 0 2px 8px -2px rgba(0,0,0,0.03)',
+          }
+        }
+      }
+    }
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', 'Sarabun', system-ui, sans-serif; }
+    .nav-item.active {
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      color: white;
+      box-shadow: 0 4px 14px -3px rgba(99,102,241,0.5);
+    }
+    .stat-card {
+      background: linear-gradient(145deg, rgba(255,255,255,0.9), rgba(255,255,255,0.7));
+    }
+    .dark .stat-card {
+      background: linear-gradient(145deg, rgba(30,41,59,0.9), rgba(15,23,42,0.8));
+    }
+    .glass { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+  </style>
+</head>
+<body class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 min-h-screen transition-colors duration-300">
+
+  <!-- Loading Overlay -->
+  <div id="loadingOverlay" class="fixed inset-0 bg-white/80 dark:bg-slate-950/80 z-[100] flex items-center justify-center">
+    <div class="text-center">
+      <div class="w-10 h-10 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
+      <p class="text-sm text-slate-500">กำลังโหลด...</p>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <header class="sticky top-0 z-50 glass bg-white/80 dark:bg-slate-900/80 border-b border-slate-200/60 dark:border-slate-800/60">
+    <div class="max-w-5xl mx-auto px-4 py-3.5 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center text-white shadow-lg shadow-indigo-500/30">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" />
+          </svg>
+        </div>
+        <div>
+          <h1 class="text-lg font-semibold tracking-tight">BodyTrack</h1>
+          <p class="text-[11px] text-slate-500 dark:text-slate-400 -mt-0.5">Weight & Waist Tracker</p>
+        </div>
+      </div>
+      <button onclick="toggleTheme()" class="w-9 h-9 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center hover:bg-slate-200 dark:hover:bg-slate-700 transition">
+        <svg class="w-5 h-5 hidden dark:block" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+        </svg>
+        <svg class="w-5 h-5 dark:hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+        </svg>
+      </button>
+    </div>
+    <div class="max-w-5xl mx-auto px-4 pb-3">
+      <nav class="flex gap-1.5 p-1 bg-slate-100/80 dark:bg-slate-800/60 rounded-2xl">
+        <button onclick="showPage('input')" id="nav-input" class="nav-item active flex-1 py-2.5 rounded-xl text-sm font-medium">บันทึก</button>
+        <button onclick="showPage('history')" id="nav-history" class="nav-item flex-1 py-2.5 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-300">ประวัติ</button>
+        <button onclick="showPage('analysis')" id="nav-analysis" class="nav-item flex-1 py-2.5 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-300">วิเคราะห์</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="max-w-5xl mx-auto px-4 py-6 pb-16">
+
+    <!-- หน้าบันทึก -->
+    <section id="page-input" class="page space-y-6">
+      <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-soft border border-slate-100 dark:border-slate-800 p-6 sm:p-8">
+        <div class="flex items-center gap-3 mb-6">
+          <div class="w-9 h-9 rounded-xl bg-indigo-50 dark:bg-indigo-500/10 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+          </div>
+          <div>
+            <h2 class="text-lg font-semibold">บันทึกข้อมูล</h2>
+            <p class="text-sm text-slate-500 dark:text-slate-400">น้ำหนัก (kg) + รอบเอว (นิ้ว)</p>
+          </div>
+        </div>
+
+        <form id="entryForm" class="space-y-5">
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-slate-600 dark:text-slate-300 mb-1.5">วันที่</label>
+              <input type="date" id="date" required class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500 outline-none">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-slate-600 dark:text-slate-300 mb-1.5">น้ำหนัก (kg)</label>
+              <input type="number" id="weight" step="0.1" min="20" max="300" required placeholder="65.5" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500 outline-none">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-slate-600 dark:text-slate-300 mb-1.5">รอบเอว (นิ้ว)</label>
+              <input type="number" id="waist" step="0.1" min="20" max="80" required placeholder="32.0" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500 outline-none">
+            </div>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-600 dark:text-slate-300 mb-1.5">หมายเหตุ <span class="text-slate-400 font-normal">(ไม่บังคับ)</span></label>
+            <input type="text" id="note" placeholder="เช่น หลังออกกำลังกาย / ก่อนนอน" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500 outline-none">
+          </div>
+          <button type="submit" id="submitBtn" class="w-full sm:w-auto px-8 py-3.5 bg-gradient-to-r from-indigo-500 to-violet-600 hover:from-indigo-600 hover:to-violet-700 text-white font-medium rounded-2xl shadow-lg shadow-indigo-500/25 transition active:scale-[0.98]">
+            บันทึกข้อมูล
+          </button>
+        </form>
+      </div>
+
+      <div id="latestSummary" class="grid grid-cols-1 sm:grid-cols-3 gap-4 hidden">
+        <div class="stat-card rounded-3xl shadow-soft border border-slate-100 dark:border-slate-800 p-5">
+          <p class="text-sm text-slate-500 dark:text-slate-400 mb-1">น้ำหนักล่าสุด</p>
+          <p class="text-2xl font-semibold text-indigo-600 dark:text-indigo-400" id="latestWeight">—</p>
+        </div>
+        <div class="stat-card rounded-3xl shadow-soft border border-slate-100 dark:border-slate-800 p-5">
+          <p class="text-sm text-slate-500 dark:text-slate-400 mb-1">รอบเอวล่าสุด</p>
+          <p class="text-2xl font-semibold text-emerald-600 dark:text-emerald-400" id="latestWaist">—</p>
+        </div>
+        <div class="stat-card rounded-3xl shadow-soft border border-slate-100 dark:border-slate-800 p-5">
+          <p class="text-sm text-slate-500 dark:text-slate-400 mb-1">จำนวนวันที่บันทึก</p>
+          <p class="text-2xl font-semibold text-violet-600 dark:text-violet-400" id="totalDays">0</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- หน้าประวัติ -->
+    <section id="page-history" class="page hidden">
+      <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-soft border border-slate-100 dark:border-slate-800 p-6 sm:p-8">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+          <div>
+            <h2 class="text-lg font-semibold">ประวัติการบันทึก</h2>
+            <p class="text-sm text-slate-500 dark:text-slate-400">ข้อมูลทั้งหมดของคุณ</p>
+          </div>
+          <div class="flex gap-2">
+            <button onclick="exportCSV()" class="px-4 py-2 text-sm font-medium bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-xl transition">Export CSV</button>
+          </div>
+        </div>
+        <div class="overflow-x-auto rounded-2xl border border-slate-100 dark:border-slate-800">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="bg-slate-50 dark:bg-slate-800/50 text-left text-slate-500 dark:text-slate-400">
+                <th class="py-3.5 px-4 font-medium">วันที่</th>
+                <th class="py-3.5 px-4 font-medium">น้ำหนัก</th>
+                <th class="py-3.5 px-4 font-medium">รอบเอว</th>
+                <th class="py-3.5 px-4 font-medium">หมายเหตุ</th>
+                <th class="py-3.5 px-4 font-medium text-right">จัดการ</th>
+              </tr>
+            </thead>
+            <tbody id="historyTable" class="divide-y divide-slate-100 dark:divide-slate-800"></tbody>
+          </table>
+        </div>
+        <p id="noDataMsg" class="text-center text-slate-400 dark:text-slate-500 py-16 hidden">ยังไม่มีข้อมูล เริ่มบันทึกได้เลย</p>
+      </div>
+    </section>
+
+    <!-- หน้าวิเคราะห์ -->
+    <section id="page-analysis" class="page hidden space-y-6">
+      <!-- Period Filter -->
+      <div class="flex flex-wrap gap-2">
+        <button onclick="setAnalysisPeriod('all')" id="period-all" class="period-btn px-4 py-2 rounded-xl text-sm font-medium bg-indigo-500 text-white">ทั้งหมด</button>
+        <button onclick="setAnalysisPeriod('week')" id="period-week" class="period-btn px-4 py-2 rounded-xl text-sm font-medium bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">7 วัน</button>
+        <button onclick="setAnalysisPeriod('month')" id="period-month" class="period-btn px-4 py-2 rounded-xl text-sm font-medium bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">30 วัน</button>
+        <button onclick="setAnalysisPeriod('year')" id="period-year" class="period-btn px-4 py-2 rounded-xl text-sm font-medium bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">1 ปี</button>
+      </div>
+
+      <!-- Stats Cards -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="stat-card rounded-3xl shadow-soft border border-slate-100 dark:border-slate-800 p-5">
+          <p class="text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">น้ำหนักปัจจุบัน</p>
+          <p class="text-xl sm:text-2xl font-semibold text-indigo-600 dark:text-indigo-400" id="statCurrentWeight">—</p>
+          <p class="text-xs mt-1.5" id="statWeightChange"></p>
+        </div>
+        <div class="stat-card rounded-3xl shadow-soft border border-slate-100 dark:border-slate-800 p-5">
+          <p class="text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">รอบเอวปัจจุบัน</p>
+          <p class="text-xl sm:text-2xl font-semibold text-emerald-600 dark:text-emerald-400" id="statCurrentWaist">—</p>
+          <p class="text-xs mt-1.5" id="statWaistChange"></p>
+        </div>
+        <div class="stat-card rounded-3xl shadow-soft border border-slate-100 dark:border-slate-800 p-5">
+          <p class="text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">น้ำหนักเฉลี่ย</p>
+          <p class="text-xl sm:text-2xl font-semibold text-violet-600 dark:text-violet-400" id="statAvgWeight">—</p>
+        </div>
+        <div class="stat-card rounded-3xl shadow-soft border border-slate-100 dark:border-slate-800 p-5">
+          <p class="text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">รอบเอวเฉลี่ย</p>
+          <p class="text-xl sm:text-2xl font-semibold text-amber-600 dark:text-amber-400" id="statAvgWaist">—</p>
+        </div>
+      </div>
+
+      <!-- Health Insights -->
+      <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-soft border border-slate-100 dark:border-slate-800 p-6">
+        <h3 class="text-base font-semibold mb-4">สรุปสุขภาพ</h3>
+        <div id="healthInsights" class="space-y-3 text-sm text-slate-600 dark:text-slate-300"></div>
+      </div>
+
+      <!-- Charts -->
+      <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-soft border border-slate-100 dark:border-slate-800 p-6">
+        <h3 class="text-base font-semibold mb-5 flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-indigo-500"></span> กราฟน้ำหนัก
+        </h3>
+        <div class="h-64 sm:h-72"><canvas id="weightChart"></canvas></div>
+      </div>
+
+      <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-soft border border-slate-100 dark:border-slate-800 p-6">
+        <h3 class="text-base font-semibold mb-5 flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-500"></span> กราฟรอบเอว
+        </h3>
+        <div class="h-64 sm:h-72"><canvas id="waistChart"></canvas></div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Edit Modal -->
+  <div id="editModal" class="fixed inset-0 bg-black/50 dark:bg-black/70 flex items-center justify-center z-50 hidden p-4">
+    <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 w-full max-w-md shadow-2xl border border-slate-200 dark:border-slate-700">
+      <h3 class="text-lg font-semibold mb-5">แก้ไขข้อมูล</h3>
+      <form id="editForm" class="space-y-4">
+        <input type="hidden" id="editId">
+        <div>
+          <label class="block text-sm font-medium text-slate-600 dark:text-slate-300 mb-1.5">วันที่</label>
+          <input type="date" id="editDate" required class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500/40">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-600 dark:text-slate-300 mb-1.5">น้ำหนัก (kg)</label>
+          <input type="number" id="editWeight" step="0.1" required class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500/40">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-600 dark:text-slate-300 mb-1.5">รอบเอว (นิ้ว)</label>
+          <input type="number" id="editWaist" step="0.1" required class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500/40">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-600 dark:text-slate-300 mb-1.5">หมายเหตุ</label>
+          <input type="text" id="editNote" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500/40">
+        </div>
+        <div class="flex gap-3 pt-3">
+          <button type="submit" class="flex-1 py-3 bg-gradient-to-r from-indigo-500 to-violet-600 text-white rounded-2xl font-medium">บันทึก</button>
+          <button type="button" onclick="closeEditModal()" class="flex-1 py-3 bg-slate-100 dark:bg-slate-800 rounded-2xl font-medium">ยกเลิก</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
