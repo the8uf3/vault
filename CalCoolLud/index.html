@@ -1,0 +1,1035 @@
+
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>📐 Calculus Survival</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; font-family: 'Segoe UI', system-ui, sans-serif; }
+        body { background: #0b0e1a; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 12px; }
+        .container { background: #1e2440; border-radius: 40px; padding: 20px 16px 24px; max-width: 480px; width: 100%; box-shadow: 0 20px 40px rgba(0,0,0,.7); text-align: center; }
+        h1 { color: #f7d44a; font-size: 26px; text-shadow: 0 0 20px #f7d44a66; }
+        .subtitle { color: #b9c6e0; font-size: 12px; margin-bottom: 12px; }
+        .btn { background: #3d4f7a; border: none; border-radius: 40px; padding: 10px 20px; font-size: 16px; font-weight: 600; color: #f0f4ff; box-shadow: 0 5px 0 #151d30; cursor: pointer; transition: .06s linear; touch-action: manipulation; margin: 3px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+        .btn:active { transform: translateY(4px); box-shadow: 0 1px 0 #151d30; }
+        .btn-primary { background: #f7c948; color: #141c33; box-shadow: 0 5px 0 #a07d1f; }
+        .btn-danger { background: #c74a4a; box-shadow: 0 5px 0 #781f1f; }
+        .btn-success { background: #3fbf7a; box-shadow: 0 5px 0 #1d6f43; }
+        .btn-small { padding: 7px 14px; font-size: 14px; }
+        .btn-info { background: #4a7abf; box-shadow: 0 5px 0 #1f3f6f; }
+        #homeScreen input { width: 75%; padding: 10px 16px; border-radius: 40px; border: none; background: #12162b; color: #f2f6ff; font-size: 17px; text-align: center; outline: 2px solid #3f4d77; margin: 8px 0 14px; }
+        #homeScreen input:focus { outline: 2px solid #f7c948; }
+        .leaderboard { margin-top: 14px; background: #12162b; border-radius: 24px; padding: 12px 10px; max-height: 160px; overflow-y: auto; }
+        .leaderboard h3 { color: #f7d44a; font-size: 15px; margin-bottom: 6px; }
+        .lb-item { display: flex; justify-content: space-between; color: #e8edff; padding: 3px 8px; border-bottom: 1px solid #2a3455; font-size: 13px; }
+        .lb-item .rank { color: #f7d44a; font-weight: bold; margin-right: 8px; }
+        .lb-item .name { flex: 1; text-align: left; }
+        .lb-item .score { color: #7fdb9a; font-weight: bold; }
+        .no-data { color: #6b7ba0; padding: 8px; font-size: 13px; }
+        #gameScreen { display: none; }
+        .player-info { display: flex; justify-content: space-between; align-items: center; color: #f2f6ff; font-size: 15px; padding: 0 2px 8px; border-bottom: 1px solid #3f4d77; margin-bottom: 8px; }
+        .player-name { color: #f7d44a; font-weight: bold; font-size: 15px; }
+        .hp-bar { display: flex; align-items: center; gap: 5px; font-size: 14px; }
+        .hp-bg { width: 70px; height: 10px; background: #2a2a3a; border-radius: 20px; overflow: hidden; }
+        .hp-fill { height: 100%; width: 100%; background: #7fdb9a; border-radius: 20px; transition: .2s; }
+        .hp-text { font-weight: bold; min-width: 22px; color: #ff6b6b; font-size: 14px; }
+        .question-box { background: #12162b; border-radius: 28px; padding: 12px 10px; margin: 8px 0; min-height: 60px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .question-topic { color: #b9c6e0; font-size: 12px; margin-bottom: 2px; }
+        .question-display { color: #f2f6ff; font-size: 16px; font-weight: 500; text-align: center; padding: 2px 0; width: 100%; overflow-x: auto; }
+        .question-display .katex { font-size: 0.95em !important; }
+        .question-display .katex .mfrac { font-size: 0.8em !important; }
+        .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 10px 0 8px; }
+        .option-btn { background: #2a3655; border: 2px solid transparent; border-radius: 24px; padding: 10px 4px; color: #f2f6ff; font-size: 14px; font-weight: 500; cursor: pointer; box-shadow: 0 3px 0 #0e121f; text-align: center; transition: .1s; touch-action: manipulation; min-height: 44px; display: flex; align-items: center; justify-content: center; gap: 4px; flex-wrap: wrap; }
+        .option-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 #0e121f; }
+        .option-btn.selected { border-color: #f7c948; background: #3f4f7a; }
+        .option-btn.correct-show { border-color: #7fdb9a; background: #1e4a3a; }
+        .option-btn.wrong-show { border-color: #ff6b6b; background: #5a2a2a; }
+        .option-btn.disabled { pointer-events: none; opacity: .6; }
+        .option-btn .katex { font-size: 0.85em !important; }
+        .option-btn .label { font-weight: bold; color: #b9c6e0; margin-right: 2px; font-size: 13px; }
+        .game-btns { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin: 6px 0 4px; }
+        .status { color: #b4c9ff; font-size: 15px; min-height: 32px; background: #0f1429aa; padding: 6px 10px; border-radius: 28px; margin-top: 4px; display: flex; align-items: center; justify-content: center; }
+        .score-display { color: #7fdb9a; font-size: 15px; font-weight: bold; margin-top: 3px; }
+        .combo-display { color: #f7d44a; font-size: 14px; }
+        #gameOverScreen { display: none; }
+        .gameover-box { background: #12162b; border-radius: 32px; padding: 20px 16px; margin-top: 8px; }
+        .gameover-box h2 { color: #ff6b6b; font-size: 26px; }
+        .gameover-box .final-score { color: #f7d44a; font-size: 36px; font-weight: 800; }
+        .gameover-box p { color: #b9c6e0; font-size: 15px; }
+        .katex-display { display: inline-block !important; margin: 0 !important; }
+        .question-display::-webkit-scrollbar { width: 0; height: 0; }
+        .question-display { scrollbar-width: none; }
+        .solution-box { background: #0f1429; border-radius: 20px; padding: 12px 14px; margin: 8px 0 4px; text-align: left; max-height: 220px; overflow-y: auto; border: 1px solid #3f4d77; display: none; }
+        .solution-box .katex { font-size: 0.95em !important; }
+        .solution-box .step { color: #b9c6e0; font-size: 14px; margin: 4px 0; line-height: 1.8; padding: 2px 0; border-bottom: 1px solid #1a2240; }
+        .solution-box .step:last-child { border-bottom: none; }
+        .solution-box .step .highlight { color: #f7d44a; font-weight: bold; }
+        .solution-box .step .correct-ans { color: #7fdb9a; font-weight: bold; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div id="homeScreen">
+        <h1>📐 Calculus Survival</h1>
+        <div class="subtitle">ลิมิต · ความต่อเนื่อง · อนุพันธ์ · ปริพันธ์ · ประยุกต์</div>
+        <input type="text" id="playerNameInput" placeholder="ใส่ชื่อผู้เล่น" maxlength="20" />
+        <button class="btn btn-primary" id="startGameBtn">🚀 เริ่มเล่น</button>
+        <div class="leaderboard">
+            <h3>🏆 ตารางคะแนนสูงสุด</h3>
+            <div id="leaderboardList"><div class="no-data">ยังไม่มีข้อมูล</div></div>
+        </div>
+        <button class="btn btn-danger btn-small" id="clearLeaderboardBtn">🗑️ ล้างคะแนน</button>
+    </div>
+    <div id="gameScreen">
+        <div class="player-info">
+            <span class="player-name" id="displayName">👤 ผู้เล่น</span>
+            <div class="hp-bar"><span>❤️</span><div class="hp-bg"><div class="hp-fill" id="hpFill" style="width:100%"></div></div><span class="hp-text" id="hpText">5</span></div>
+        </div>
+        <div class="question-box">
+            <div class="question-topic" id="topicLabel">📘 ลิมิต</div>
+            <div class="question-display" id="questionDisplay"></div>
+        </div>
+        <div class="options-grid" id="optionsGrid"></div>
+        <div class="game-btns">
+            <button class="btn btn-success btn-small" id="confirmBtn">✅ ยืนยัน</button>
+            <button class="btn btn-info btn-small" id="solutionBtn">📖 วิธีทำ</button>
+            <button class="btn btn-small" id="skipBtn">⏭️ ข้าม</button>
+            <button class="btn btn-danger btn-small" id="quitBtn">🚪 ออกจากเกม</button>
+        </div>
+        <div class="solution-box" id="solutionBox"></div>
+        <div class="status" id="statusMessage">✨ เลือกข้อแล้วกดยืนยัน</div>
+        <div class="score-display" id="scoreDisplay">⭐ คะแนน: 0</div>
+        <div class="combo-display" id="comboDisplay">🔥 คอมโบ: 0</div>
+    </div>
+    <div id="gameOverScreen">
+        <div class="gameover-box">
+            <h2>💀 Game Over</h2>
+            <div class="final-score" id="finalScore">0</div>
+            <p>คะแนนที่ทำได้</p>
+            <button class="btn btn-primary" id="retryBtn">🔄 เล่นใหม่</button>
+            <button class="btn" id="homeBtn">🏠 หน้าแรก</button>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script>
+// ============================================================
+// ระบบสุ่มโจทย์ฉบับสมบูรณ์ (แม่แบบหลากหลาย) + เฉลยละเอียด
+// ============================================================
+function rand(a,b){ return Math.floor(Math.random()*(b-a+1))+a; }
+function randf(a,b){ return parseFloat((Math.random()*(b-a)+a).toFixed(2)); }
+function pick(a){ return a[rand(0,a.length-1)]; }
+function shuffle(a){ for(let i=a.length-1;i>0;i--){ let j=rand(0,i); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+
+function renderLatex(latex){
+    try{ return katex.renderToString(latex, {throwOnError:false, displayMode:false}); }catch(e){ return latex; }
+}
+function setLatex(el, latex){ el.innerHTML = renderLatex(latex); }
+
+// ---------- สร้างตัวเลือก 4 ข้อ ----------
+function buildOptions(correctText, correctValue, topic) {
+    if (!correctText || correctText === 'undefined' || correctText === 'null') correctText = 'ไม่มีข้อมูล';
+    if (correctValue === undefined || correctValue === null) correctValue = 0;
+    let opts = new Set();
+    opts.add(correctText);
+    let attempts = 0, base = parseFloat(correctValue);
+    let isNumeric = !isNaN(base) && topic !== 'derivative' && topic !== 'integral';
+    const isFunction = /[xX]/.test(correctText) || /\+C/.test(correctText);
+    while (opts.size < 4 && attempts < 300) {
+        attempts++;
+        let wrong;
+        if (isFunction) {
+            let fakeFuncs = [
+                (rand(1,5))+'x^{'+rand(2,4)+'}'+(topic==='integral'?'+C':''),
+                (rand(1,5))+'x^{'+rand(1,3)+'}',
+                (rand(1,5))+'x'+(topic==='integral'?'+C':'')
+            ];
+            wrong = pick(fakeFuncs);
+            if (topic === 'derivative') {
+                wrong = pick([
+                    (rand(1,5))+'x^{'+rand(1,3)+'}',
+                    (rand(1,5))+'x',
+                    (rand(1,5))+''
+                ]);
+            }
+        } else if (isNumeric) {
+            let offset = randf(0.5, 5) * (Math.random()>0.5?1:-1);
+            let val = base + offset;
+            if (Math.abs(val-base) < 0.01) val = base + randf(1,3);
+            wrong = val.toFixed(2);
+        } else {
+            let fake = correctText;
+            if (correctText.includes('ใช่')) fake = pick(['ไม่', 'เฉพาะช่วง (-1,1)', 'เฉพาะช่วง [0,1]']);
+            else if (correctText.includes('∞')) {
+                let a = rand(1,4);
+                fake = pick(['[ '+a+' , ∞ )', '(-∞ , '+a+']', '\\mathbb{R}']);
+            } else if (correctText.includes('x=')) {
+                let vals = ['x=1','x=-1','x=2','x=-2','x=0','x=3','x=-3'];
+                fake = pick(vals.filter(v=>v!==correctText));
+            } else {
+                fake = pick(['ถูกต้อง', 'ไม่ถูกต้อง', 'ข้อมูลไม่พอ']);
+            }
+            wrong = fake;
+        }
+        if (wrong && wrong !== correctText && wrong !== 'undefined' && wrong !== 'null') opts.add(wrong);
+    }
+    let result = Array.from(opts).filter(x => x && x!=='undefined' && x!=='null');
+    while (result.length < 4) {
+        if (isFunction) result.push((rand(1,5))+'x^{'+rand(1,3)+'}'+(topic==='integral'?'+C':''));
+        else if (isNumeric) result.push((base+rand(1,10)).toFixed(2));
+        else result.push(pick(['ตัวเลือกอื่น', 'ไม่แน่ใจ', 'ไม่มีคำตอบ']));
+    }
+    result = shuffle(result).slice(0,4);
+    if (!result.includes(correctText)) result[rand(0,3)] = correctText;
+    return shuffle(result);
+}
+
+// ============================================================
+// 1. ลิมิต (12 แม่แบบ) + เฉลยละเอียด
+// ============================================================
+function genLimit() {
+    let templates = [
+        // แบบที่ 1: แทนค่าตรง
+        function() {
+            let a = rand(1,4), b = rand(1,4), c = rand(1,4), x0 = rand(1,4);
+            let ans = (a*x0*x0 + b*x0 + c).toFixed(2);
+            let display = '\\displaystyle \\lim_{x \\to '+x0+'} (' + a + 'x^{2}+' + b + 'x+' + c + ')';
+            let solution = '\\text{แทนค่า } x = ' + x0 + ' \\text{ ลงในฟังก์ชัน:}\\\\ \n' +
+                           a + '(' + x0 + ')^{2} + ' + b + '(' + x0 + ') + ' + c + ' = ' + ans + '\\\\ \n' +
+                           '\\text{ดังนั้น } \\lim_{x \\to ' + x0 + '} = ' + ans;
+            return { display, answer: ans, solution: solution };
+        },
+        // แบบที่ 2: เศษส่วนตัดทอน
+        function() {
+            let a = rand(1,4), b = rand(1,4), x0 = rand(1,4);
+            let ans = (a*x0 + b).toFixed(2);
+            let display = '\\displaystyle \\lim_{x \\to '+x0+'} \\frac{' + a + 'x^{2} - ' + (a*x0*x0) + '}{x - ' + x0 + '}';
+            let solution = '\\text{แยกตัวประกอบ: } ' + a + 'x^{2} - ' + (a*x0*x0) + ' = ' + a + '(x-' + x0 + ')(x+' + x0 + ')\\\\ \n' +
+                           '\\text{ตัดทอน } (x-' + x0 + ') \\text{ แล้วแทนค่า } x=' + x0 + ':\\\\ \n' +
+                           a + '(' + x0 + '+' + x0 + ') = ' + ans + '\\\\ \n' +
+                           '\\text{ดังนั้น } \\lim = ' + ans;
+            return { display, answer: ans, solution: solution };
+        },
+        // แบบที่ 3: อนันต์
+        function() {
+            let a = rand(1,4), b = rand(1,4);
+            let ans = (a/b).toFixed(2);
+            let display = '\\displaystyle \\lim_{x \\to \\infty} \\frac{' + a + 'x^{2}+2x}{' + b + 'x^{2}-x}';
+            let solution = '\\text{หารทั้งเศษและส่วนด้วย } x^{2}:\\\\ \n' +
+                           '\\frac{' + a + '+ \\frac{2}{x}}{' + b + '- \\frac{1}{x}}\\\\ \n' +
+                           '\\text{เมื่อ } x \\to \\infty, \\frac{2}{x} \\to 0 \\text{ และ } \\frac{1}{x} \\to 0\\\\ \n' +
+                           '\\text{ดังนั้น } \\lim = \\frac{' + a + '}{' + b + '} = ' + ans;
+            return { display, answer: ans, solution: solution };
+        },
+        // แบบที่ 4: ค่าสัมบูรณ์ (แก้ไขให้ถูกต้อง)
+        function() {
+            let a = rand(1,4), x0 = rand(1,4);
+            let ans = '\\text{หาค่าไม่ได้}';
+            let display = '\\displaystyle \\lim_{x \\to '+x0+'} \\frac{|' + a + 'x - ' + (a*x0) + '|}{x - ' + x0 + '}';
+            let solution = '\\text{แยกค่าสัมบูรณ์: } |' + a + 'x - ' + (a*x0) + '| = ' + a + '|x - ' + x0 + '|\\\\ \n' +
+                           '\\text{กรณี } x \\to ' + x0 + '^+: x - ' + x0 + ' > 0 \\Rightarrow |x-' + x0 + '| = x-' + x0 + '\\\\ \n' +
+                           '\\lim = \\frac{' + a + '(x-' + x0 + ')}{x-' + x0 + '} = ' + a + '\\\\ \n' +
+                           '\\text{กรณี } x \\to ' + x0 + '^-: x - ' + x0 + ' < 0 \\Rightarrow |x-' + x0 + '| = -(x-' + x0 + ')\\\\ \n' +
+                           '\\lim = \\frac{' + a + '(-(x-' + x0 + '))}{x-' + x0 + '} = -' + a + '\\\\ \n' +
+                           '\\text{ลิมิตซ้าย } = ' + a + ' \\text{ และลิมิตขวา } = -' + a + ' \\text{ ไม่เท่ากัน}\\\\ \n' +
+                           '\\text{ดังนั้น } \\lim \\text{ หาค่าไม่ได้}';
+            return { display, answer: ans, solution: solution };
+        },
+        // แบบที่ 5: โลปิตาล
+        function() {
+            let a = rand(1,4), b = rand(1,4), c = rand(1,4), x0 = rand(1,4);
+            let ans = (2*a*x0 + b).toFixed(2);
+            let display = '\\displaystyle \\lim_{x \\to '+x0+'} \\frac{' + a + 'x^{2}+' + b + 'x+' + c + '}{x-' + x0 + '}';
+            let solution = '\\text{แทนค่า } x=' + x0 + ' \\text{ ได้ } \\frac{0}{0} \\text{ ใช้กฎของโลปิตาล:}\\\\ \n' +
+                           '\\text{ดิฟเศษ: } ' + (2*a) + 'x + ' + b + '\\\\ \n' +
+                           '\\text{ดิฟส่วน: } 1\\\\ \n' +
+                           '\\text{แทนค่า } x=' + x0 + ': ' + (2*a) + '(' + x0 + ')+' + b + ' = ' + ans + '\\\\ \n' +
+                           '\\text{ดังนั้น } \\lim = ' + ans;
+            return { display, answer: ans, solution: solution };
+        },
+        // แบบที่ 6: รูท
+        function() {
+            let a = rand(1,4), b = rand(1,4), x0 = rand(1,4);
+            let ans = (a*x0 + b).toFixed(2);
+            let display = '\\displaystyle \\lim_{x \\to '+x0+'} \\frac{\\sqrt{' + a + 'x+' + b + '} - \\sqrt{' + (a*x0+b) + '}}{x-' + x0 + '}';
+            let solution = '\\text{ใช้คอนจูเกตคูณทั้งเศษและส่วน:}\\\\ \n' +
+                           '\\frac{(\\sqrt{' + a + 'x+' + b + '} - \\sqrt{' + (a*x0+b) + '})(\\sqrt{' + a + 'x+' + b + '} + \\sqrt{' + (a*x0+b) + '})}{(x-' + x0 + ')(\\sqrt{' + a + 'x+' + b + '} + \\sqrt{' + (a*x0+b) + '})}\\\\ \n' +
+                           '= \\frac{' + a + '(x-' + x0 + ')}{(x-' + x0 + ')(\\sqrt{' + a + 'x+' + b + '} + \\sqrt{' + (a*x0+b) + '})}\\\\ \n' +
+                           '\\text{ตัดทอนแล้วแทนค่า } x=' + x0 + ': ' + ans + '\\\\ \n' +
+                           '\\text{ดังนั้น } \\lim = ' + ans;
+            return { display, answer: ans, solution: solution };
+        },
+        // แบบที่ 7: ดีกรี 3
+        function() {
+            let a = rand(1,4), x0 = rand(1,4);
+            let ans = (a*x0*x0).toFixed(2);
+            let display = '\\displaystyle \\lim_{x \\to '+x0+'} \\frac{' + a + 'x^{3} - ' + (a*x0*x0*x0) + '}{x - ' + x0 + '}';
+            let solution = '\\text{ใช้สูตร } a^3 - b^3 = (a-b)(a^2+ab+b^2):\\\\ \n' +
+                           a + 'x^{3} - ' + (a*x0*x0*x0) + ' = ' + a + '(x^{3} - ' + (x0*x0*x0) + ')\\\\ \n' +
+                           '= ' + a + '(x-' + x0 + ')(x^{2}+' + x0 + 'x+' + (x0*x0) + ')\\\\ \n' +
+                           '\\text{ตัดทอนแล้วแทนค่า } x=' + x0 + ': ' + ans + '\\\\ \n' +
+                           '\\text{ดังนั้น } \\lim = ' + ans;
+            return { display, answer: ans, solution: solution };
+        },
+        // แบบที่ 8: ตรีโกณมิติ
+        function() {
+            let a = rand(1,4);
+            let ans = a + '';
+            let display = '\\displaystyle \\lim_{x \\to 0} \\frac{\\sin(' + a + 'x)}{x}';
+            let solution = '\\text{ใช้สูตร } \\lim_{x \\to 0} \\frac{\\sin(ax)}{x} = a\\\\ \n' +
+                           '\\text{ดังนั้น } \\lim_{x \\to 0} \\frac{\\sin(' + a + 'x)}{x} = ' + a;
+            return { display, answer: ans, solution: solution };
+        },
+        // แบบที่ 9: เอกซ์โพเนนเชียล
+        function() {
+            let a = rand(1,4);
+            let ans = a + '';
+            let display = '\\displaystyle \\lim_{x \\to 0} \\frac{e^{' + a + 'x} - 1}{x}';
+            let solution = '\\text{ใช้สูตร } \\lim_{x \\to 0} \\frac{e^{ax}-1}{x} = a\\\\ \n' +
+                           '\\text{ดังนั้น } \\lim_{x \\to 0} \\frac{e^{' + a + 'x} - 1}{x} = ' + a;
+            return { display, answer: ans, solution: solution };
+        },
+        // แบบที่ 10: ลอการิทึม
+        function() {
+            let a = rand(1,4);
+            let ans = a + '';
+            let display = '\\displaystyle \\lim_{x \\to 0} \\frac{\\ln(1+' + a + 'x)}{x}';
+            let solution = '\\text{ใช้สูตร } \\lim_{x \\to 0} \\frac{\\ln(1+ax)}{x} = a\\\\ \n' +
+                           '\\text{ดังนั้น } \\lim_{x \\to 0} \\frac{\\ln(1+' + a + 'x)}{x} = ' + a;
+            return { display, answer: ans, solution: solution };
+        },
+        // แบบที่ 11: อนันต์ดีกรี 3
+        function() {
+            let a = rand(1,4), b = rand(1,4);
+            let ans = (a/b).toFixed(2);
+            let display = '\\displaystyle \\lim_{x \\to \\infty} \\frac{' + a + 'x^{3}+2x}{' + b + 'x^{3}-x}';
+            let solution = '\\text{หารทั้งเศษและส่วนด้วย } x^{3}:\\\\ \n' +
+                           '\\frac{' + a + '+ \\frac{2}{x^{2}}}{' + b + '- \\frac{1}{x^{2}}}\\\\ \n' +
+                           '\\text{เมื่อ } x \\to \\infty, \\frac{2}{x^{2}} \\to 0 \\text{ และ } \\frac{1}{x^{2}} \\to 0\\\\ \n' +
+                           '\\text{ดังนั้น } \\lim = \\frac{' + a + '}{' + b + '} = ' + ans;
+            return { display, answer: ans, solution: solution };
+        },
+        // แบบที่ 12: ค่าสัมบูรณ์อนันต์
+        function() {
+            let a = rand(1,4);
+            let ans = a + '';
+            let display = '\\displaystyle \\lim_{x \\to \\infty} \\frac{|' + a + 'x|}{x}';
+            let solution = '\\text{เมื่อ } x \\to \\infty, |' + a + 'x| = ' + a + 'x\\\\ \n' +
+                           '\\text{ดังนั้น } \\lim_{x \\to \\infty} \\frac{' + a + 'x}{x} = ' + a + '\\\\ \n' +
+                           '\\text{ดังนั้น } \\lim = ' + a;
+            return { display, answer: ans, solution: solution };
+        }
+    ];
+    let t = pick(templates);
+    let result = t();
+    let options = buildOptions(result.answer, result.answer, 'limit');
+    return { topic: 'ลิมิต', displayLatex: result.display, answer: result.answer, options: options, solution: result.solution };
+}
+
+// ============================================================
+// 2. ความต่อเนื่อง (10 แม่แบบ) + เฉลยละเอียด
+// ============================================================
+function genContinuity() {
+    let templates = [
+        // แบบที่ 1: หา k (x ≤ a, x > a)
+        function() {
+            let a = rand(1,4), b = rand(1,4), c = rand(1,4), x0 = rand(1,4);
+            let k = ((a*x0 + b) - c) / x0;
+            let ans = k.toFixed(2);
+            let display = 'f(x)=\\begin{cases} ' + a + 'x+' + b + ' & x \\le ' + x0 + ' \\\\ kx+' + c + ' & x > ' + x0 + ' \\end{cases} \\quad \\text{จงหา } k \\text{ ที่ทำให้ต่อเนื่องที่ } x=' + x0;
+            let solution = '\\text{ใช้เงื่อนไข } f(a) = \\lim_{x \\to a^-} f(x) = \\lim_{x \\to a^+} f(x)\\\\ \n' +
+                           'f(' + x0 + ') = ' + a + '(' + x0 + ')+' + b + ' = ' + (a*x0+b) + '\\\\ \n' +
+                           '\\lim_{x \\to ' + x0 + '^-} f(x) = ' + a + '(' + x0 + ')+' + b + ' = ' + (a*x0+b) + '\\\\ \n' +
+                           '\\lim_{x \\to ' + x0 + '^+} f(x) = k(' + x0 + ')+' + c + '\\\\ \n' +
+                           '\\text{ดังนั้น } ' + (a*x0+b) + ' = ' + k + '(' + x0 + ')+' + c + '\\\\ \n' +
+                           '\\text{แก้สมการได้ } k = ' + ans;
+            return { display, answer: ans, solution: solution };
+        },
+        // แบบที่ 2: หา k (x < a, x ≥ a)
+        function() {
+            let a = rand(1,4), b = rand(1,4), c = rand(1,4), x0 = rand(1,4);
+            let k = ((a*x0 + b) - c) / x0;
+            let ans = k.toFixed(2);
+            let display = 'f(x)=\\begin{cases} ' + a + 'x+' + b + ' & x < ' + x0 + ' \\\\ kx+' + c + ' & x \\ge ' + x0 + ' \\end{cases} \\quad \\text{จงหา } k \\text{ ที่ทำให้ต่อเนื่องที่ } x=' + x0;
+            let solution = '\\text{ใช้เงื่อนไข } f(a) = \\lim_{x \\to a^-} f(x) = \\lim_{x \\to a^+} f(x)\\\\ \n' +
+                           'f(' + x0 + ') = ' + a + '(' + x0 + ')+' + b + ' = ' + (a*x0+b) + '\\\\ \n' +
+                           '\\lim_{x \\to ' + x0 + '^-} f(x) = ' + a + '(' + x0 + ')+' + b + ' = ' + (a*x0+b) + '\\\\ \n' +
+                           '\\lim_{x \\to ' + x0 + '^+} f(x) = k(' + x0 + ')+' + c + '\\\\ \n' +
+                           '\\text{ดังนั้น } ' + (a*x0+b) + ' = ' + k + '(' + x0 + ')+' + c + '\\\\ \n' +
+                           '\\text{แก้สมการได้ } k = ' + ans;
+            return { display, answer: ans, solution: solution };
+        },
+        // แบบที่ 3: จุดที่ไม่ต่อเนื่องของเศษส่วน
+        function() {
+            let a = rand(1,4), b = rand(1,4);
+            let ans = 'x=' + (-b/a);
+            let display = 'f(x)=\\frac{' + a + 'x+' + b + '}{x^{2}-1} \\quad \\text{ไม่ต่อเนื่องที่ใด?}';
+            let vals = ['x=1','x=-1','x=2','x=-2','x=0','x=3','x=-3'];
+            let opts = [ans];
+            let available = vals.filter(v=>v!==ans);
+            while(opts.length<4 && available.length>0){ let p=rand(0,available.length-1); opts.push(available[p]); available.splice(p,1); }
+            while(opts.length<4) opts.push('x='+rand(1,10));
+            let solution = '\\text{หาจุดที่ส่วนเป็นศูนย์: } x^{2}-1=0\\\\ \n' +
+                           '\\text{แยกตัวประกอบ: } (x-1)(x+1)=0\\\\ \n' +
+                           '\\text{ดังนั้น } x=1 \\text{ หรือ } x=-1\\\\ \n' +
+                           '\\text{แต่ } x=-1 \\text{ ทำให้เศษเป็น 0 ด้วย (เป็น removable)}\\\\ \n' +
+                           '\\text{ดังนั้นฟังก์ชันไม่ต่อเนื่องที่ } x=1 \\text{ และ } x=-1';
+            return { display, answer: ans, options: shuffle(opts), solution: solution };
+        },
+        // แบบที่ 4: ช่วงต่อเนื่องของรูท
+        function() {
+            let a = rand(1,4);
+            let ans = '[ ' + a + ' , \\infty )';
+            let display = 'f(x)=\\sqrt{x-'+a+'} \\quad \\text{ต่อเนื่องบนช่วงใด?}';
+            let opts = ['[ '+a+' , \\infty )', '(-\\infty , '+a+']', '\\mathbb{R}', '( -\\infty , \\infty )'];
+            let solution = '\\text{ฟังก์ชัน } \\sqrt{x-a} \\text{ ต่อเนื่องเมื่อ } x-a \\ge 0\\\\ \n' +
+                           '\\text{ดังนั้น } x \\ge ' + a + '\\\\ \n' +
+                           '\\text{ตอบ } [ ' + a + ' , \\infty )';
+            return { display, answer: ans, options: shuffle(opts), solution: solution };
+        },
+        // แบบที่ 5: sin ต่อเนื่องบน R?
+        function() {
+            let ans = 'ใช่';
+            let display = 'f(x)=\\sin x \\quad \\text{ต่อเนื่องบน } \\mathbb{R} \\text{ หรือไม่?}';
+            let opts = ['ใช่', 'ไม่', 'เฉพาะช่วง (-1,1)', 'เฉพาะช่วง [0,1]'];
+            let solution = '\\sin x \\text{ เป็นฟังก์ชันต่อเนื่องบน } \\mathbb{R} \\text{ ทุกจุด}\\\\ \n' +
+                           '\\text{เพราะ } \\lim_{x \\to a} \\sin x = \\sin a \\text{ ทุก } a \\in \\mathbb{R}\\\\ \n' +
+                           '\\text{ดังนั้นตอบ } \\text{ใช่}';
+            return { display, answer: ans, options: shuffle(opts), solution: solution };
+        },
+        // แบบที่ 6: หา k (x ≠ a, x = a)
+        function() {
+            let a = rand(1,4), b = rand(1,4), c = rand(1,4), x0 = rand(1,4);
+            let ans = (a*x0*x0 + b*x0 + c).toFixed(2);
+            let display = 'f(x)=\\begin{cases} '+a+'x^{2}+'+b+'x+'+c+' & x \\ne '+x0+' \\\\ k & x='+x0+' \\end{cases} \\quad \\text{จงหา } k \\text{ ที่ทำให้ต่อเนื่องที่ } x='+x0;
+            let solution = '\\text{ให้ } k = \\lim_{x \\to ' + x0 + '} f(x)\\\\ \n' +
+                           '\\lim_{x \\to ' + x0 + '} (' + a + 'x^{2}+' + b + 'x+' + c + ')\\\\ \n' +
+                           '= ' + a + '(' + x0 + ')^{2}+' + b + '(' + x0 + ')+' + c + '\\\\ \n' +
+                           '= ' + ans + '\\\\ \n' +
+                           '\\text{ดังนั้น } k = ' + ans;
+            return { display, answer: ans, solution: solution };
+        },
+        // แบบที่ 7: จุดไม่ต่อเนื่องของ 1/(x-a)
+        function() {
+            let a = rand(2,5);
+            let ans = 'x=' + a;
+            let display = 'f(x)=\\frac{1}{x-'+a+'} \\quad \\text{ไม่ต่อเนื่องที่ใด?}';
+            let vals = ['x='+a, 'x='+(a+1), 'x='+(a-1), 'x=0', 'x=1', 'x=-1', 'x=2', 'x=-2'];
+            let opts = [ans];
+            let available = vals.filter(v=>v!==ans);
+            while(opts.length<4 && available.length>0){ let p=rand(0,available.length-1); opts.push(available[p]); available.splice(p,1); }
+            while(opts.length<4) opts.push('x='+rand(1,10));
+            let solution = '\\text{หาจุดที่ส่วนเป็นศูนย์: } x-' + a + '=0\\\\ \n' +
+                           '\\text{ดังนั้น } x = ' + a + '\\\\ \n' +
+                           '\\text{ฟังก์ชันไม่ต่อเนื่องที่ } x=' + a;
+            return { display, answer: ans, options: shuffle(opts), solution: solution };
+        },
+        // แบบที่ 8: ค่าสัมบูรณ์ต่อเนื่อง
+        function() {
+            let a = rand(1,4);
+            let ans = 'ใช่';
+            let display = 'f(x)=|x-'+a+'| \\quad \\text{ต่อเนื่องที่ } x='+a+' \\text{ หรือไม่?}';
+            let opts = ['ใช่', 'ไม่'];
+            let solution = '|x-a| \\text{ เป็นฟังก์ชันต่อเนื่องทุกจุดบน } \\mathbb{R}\\\\ \n' +
+                           '\\text{เพราะ } \\lim_{x \\to a} |x-a| = |a-a| = 0 = f(a)\\\\ \n' +
+                           '\\text{ดังนั้นตอบ } \\text{ใช่}';
+            return { display, answer: ans, options: shuffle(opts), solution: solution };
+        },
+        // แบบที่ 9: หา a,b ทำให้ต่อเนื่องทั้งช่วง
+        function() {
+            let a = rand(1,3), b = rand(1,3), c = rand(1,3), d = rand(1,3);
+            let ans = (a + b).toFixed(2);
+            let display = 'f(x)=\\begin{cases} '+a+'x+'+b+' & x \\le 2 \\\\ '+c+'x+'+d+' & x > 2 \\end{cases} \\quad \\text{จงหา } a,b \\text{ ที่ทำให้ต่อเนื่องที่ } x=2';
+            let solution = '\\text{ใช้เงื่อนไข } f(2) = \\lim_{x \\to 2^-} f(x) = \\lim_{x \\to 2^+} f(x)\\\\ \n' +
+                           'f(2) = ' + a + '(2)+' + b + ' = ' + (2*a+b) + '\\\\ \n' +
+                           '\\lim_{x \\to 2^-} f(x) = ' + a + '(2)+' + b + ' = ' + (2*a+b) + '\\\\ \n' +
+                           '\\lim_{x \\to 2^+} f(x) = ' + c + '(2)+' + d + ' = ' + (2*c+d) + '\\\\ \n' +
+                           '\\text{ดังนั้น } ' + (2*a+b) + ' = ' + (2*c+d) + '\\\\ \n' +
+                           '\\text{ตอบ } a=' + a + ', b=' + b;
+            return { display, answer: ans, solution: solution };
+        },
+        // แบบที่ 10: ไม่ต่อเนื่องแบบ removable
+        function() {
+            let ans = 'x=2';
+            let display = 'f(x)=\\frac{x^{2}-4}{x-2} \\quad \\text{ไม่ต่อเนื่องที่ใด?}';
+            let opts = ['x=2','x=-2','x=0','x=1','x=-1'];
+            let result = [ans];
+            let available = opts.filter(v=>v!==ans);
+            while(result.length<4 && available.length>0){ let p=rand(0,available.length-1); result.push(available[p]); available.splice(p,1); }
+            while(result.length<4) result.push('x='+rand(1,10));
+            let solution = '\\text{หาจุดที่ส่วนเป็นศูนย์: } x-2=0\\\\ \n' +
+                           '\\text{ดังนั้น } x=2\\\\ \n' +
+                           '\\text{แต่ } \\lim_{x \\to 2} \\frac{x^{2}-4}{x-2} = \\lim_{x \\to 2} (x+2) = 4\\\\ \n' +
+                           '\\text{เป็น removable discontinuity ที่ } x=2';
+            return { display, answer: ans, options: shuffle(result), solution: solution };
+        }
+    ];
+    let t = pick(templates);
+    let result = t();
+    let options = result.options || buildOptions(result.answer, result.answer, 'continuity');
+    return { topic: 'ความต่อเนื่อง', displayLatex: result.display, answer: result.answer, options: options, solution: result.solution };
+}
+
+// ============================================================
+// 3. อนุพันธ์ (12 แม่แบบ) + เฉลยละเอียด
+// ============================================================
+function genDerivative() {
+    let templates = [
+        // แบบที่ 1: พหุนาม
+        function() {
+            let a = rand(1,5), n = rand(2,5);
+            let ans = (a*n) + 'x^{' + (n-1) + '}';
+            let display = '\\displaystyle \\frac{d}{dx} \\left( ' + a + 'x^{' + n + '} \\right)';
+            let solution = '\\text{ใช้สูตร } \\frac{d}{dx}(ax^n) = a n x^{n-1}\\\\ \n' +
+                           '\\frac{d}{dx}(' + a + 'x^{' + n + '}) = ' + a + ' \\cdot ' + n + ' x^{' + (n-1) + '}\\\\ \n' +
+                           '= ' + ans;
+            return { display, answer: ans, solution: solution };
+        },
+        // แบบที่ 2: กฎลูกโซ่
+        function() {
+            let a = rand(1,3), b = rand(1,3), n = rand(2,4);
+            let ans = (a*n) + '(' + a + 'x+' + b + ')^{' + (n-1) + '}';
+            let display = '\\displaystyle \\frac{d}{dx} \\left( (' + a + 'x+' + b + ')^{' + n + '} \\right)';
+            let solution = '\\text{ใช้กฎลูกโซ่: } \\frac{d}{dx} f(g(x)) = f\'(g(x))\\cdot g\'(x)\\\\ \n' +
+                           '\\text{ให้ } u = ' + a + 'x+' + b + '\\\\ \n' +
+                           '\\frac{d}{dx} u^{' + n + '} = ' + n + 'u^{' + (n-1) + '} \\cdot \\frac{du}{dx}\\\\ \n' +
+                           '= ' + n + '(' + a + 'x+' + b + ')^{' + (n-1) + '} \\cdot ' + a + '\\\\ \n' +
+                           '= ' + ans;
+            return { display, answer: ans, solution: solution };
+        },
+        // แบบที่ 3: ผลคูณ
+        function() {
+            let a = rand(1,3), b = rand(1,3), c = rand(1,3), d = rand(1,3);
+            let ans = (a*c) + 'x^{2} + ' + (a*d + b*c) + 'x + ' + (b*d);
+            let display = '\\displaystyle \\frac{d}{dx} \\left( (' + a + 'x+' + b + ')(' + c + 'x+' + d + ') \\right)';
+            let solution = '\\text{ใช้สูตร } (uv)\' = u\'v + uv\'\\\\ \n' +
+                           'u = ' + a + 'x+' + b + ', u\' = ' + a + '\\\\ \n' +
+                           'v = ' + c + 'x+' + d + ', v\' = ' + c + '\\\\ \n' +
+                           '(uv)\' = ' + a + '(' + c + 'x+' + d + ') + ' + c + '(' + a + 'x+' + b + ')\\\\ \n' +
+                           '= ' + ans;
+            return { display, answer: ans, solution: solution };
+        },
+        // แบบที่ 4: ผลหาร
+        function() {
+            let a = rand(1,3), b = rand(1,3), c = rand(1,3), d = rand(1,3);
+            let ans = '\\frac{' + (a*d - b*c) + '}{(' + c + 'x+' + d + ')^{2}}';
+            let display = '\\displaystyle \\frac{d}{dx} \\left( \\frac{' + a + 'x+' + b + '}{' + c + 'x+' + d + '} \\right)';
+            let solution = '\\text{ใช้สูตร } \\left(\\frac{u}{v}\\right)\' = \\frac{u\'v - uv\'}{v^2}\\\\ \n' +
+                           'u = ' + a + 'x+' + b + ', u\' = ' + a + '\\\\ \n' +
+                           'v = ' + c + 'x+' + d + ', v\' = ' + c + '\\\\ \n' +
+                           '= \\frac{' + a + '(' + c + 'x+' + d + ') - ' + c + '(' + a + 'x+' + b + ')}{(' + c + 'x+' + d + ')^{2}}\\\\ \n' +
+                           '= ' + ans;
+            return { display, answer: ans, solution: solution };
+        },
+        // แบบที่ 5: ฟังก์ชันแฝง
+        function() {
+            let a = rand(1,4);
+            let ans = '-\\frac{' + a + 'x}{y}';
+            let display = '\\displaystyle \\frac{d}{dx} \\left( ' + a + 'x^{2} + y^{2} = 16 \\right)';
+            let solution = '\\text{ดิฟทั้งสองข้างของสมการ:}\\\\ \n' +
+                           '\\frac{d}{dx}(' + a + 'x^{2} + y^{2}) = \\frac{d}{dx}(16)\\\\ \n' +
+                           a + '\\cdot 2x + 2y \\cdot \\frac{dy}{dx} = 0\\\\ \n' +
+                           '2y \\frac{dy}{dx} = -' + (2*a) + 'x\\\\ \n' +
+                           '\\frac{dy}{dx} = -\\frac{' + (2*a) + 'x}{2y} = -\\frac{' + a + 'x}{y}';
+            return { display, answer: ans, solution: solution };
+        },
+        // แบบที่ 6: อนุพันธ์อันดับสอง
+        function() {
+            let a = rand(1,4), b = rand(1,4), c = rand(1,4);
+            let ans = (6*a) + 'x + ' + (2*b);
+            let display = '\\displaystyle f\'\'(x) \\text{ เมื่อ } f(x) = ' + a + 'x^{3} + ' + b + 'x^{2} + ' + c + 'x';
+            let solution = '\\text{หาอนุพันธ์ 2 ครั้ง:}\\\\ \n' +
+                           'f\'(x) = ' + (3*a) + 'x^{2} + ' + (2*b) + 'x + ' + c + '\\\\ \n' +
+                           'f\'\'(x) = ' + (6*a) + 'x + ' + (2*b);
+            return { display, answer: ans, solution: solution };
+        },
+        // แบบที่ 7: กฎลูกโซ่ซ้อน 2 ชั้น
+        function() {
+            let a = rand(1,3), b = rand(1,3), c = rand(1,3), n = rand(2,4);
+            let ans = (a*n) + '(' + a + 'x^{2} + ' + b + ')^{' + (n-1) + '} \\cdot (' + (2*a) + 'x)';
+            let display = '\\displaystyle \\frac{d}{dx} \\left( \\left( ' + a + 'x^{2} + ' + b + ' \\right)^{' + n + '} \\right)';
+            let solution = '\\text{ใช้กฎลูกโซ่ 2 ชั้น:}\\\\ \n' +
+                           '\\text{ให้ } u = ' + a + 'x^{2} + ' + b + '\\\\ \n' +
+                           '\\frac{d}{dx} u^{' + n + '} = ' + n + 'u^{' + (n-1) + '} \\cdot \\frac{du}{dx}\\\\ \n' +
+                           '= ' + n + '(' + a + 'x^{2} + ' + b + ')^{' + (n-1) + '} \\cdot (' + (2*a) + 'x)\\\\ \n' +
+                           '= ' + ans;
+            return { display, answer: ans, solution: solution };
+        },
+        // แบบที่ 8: ตรีโกณมิติ
+        function() {
+            let a = rand(1,3);
+            let ans = a + '\\cos(' + a + 'x)';
+            let display = '\\displaystyle \\frac{d}{dx} \\left( \\sin(' + a + 'x) \\right)';
+            let solution = '\\text{ใช้สูตร } \\frac{d}{dx} \\sin(ax) = a\\cos(ax)\\\\ \n' +
+                           '\\frac{d}{dx} \\sin(' + a + 'x) = ' + a + '\\cos(' + a + 'x)';
+            return { display, answer: ans, solution: solution };
+        },
+        // แบบที่ 9: เอกซ์โพเนนเชียล
+        function() {
+            let a = rand(1,3);
+            let ans = a + 'e^{' + a + 'x}';
+            let display = '\\displaystyle \\frac{d}{dx} \\left( e^{' + a + 'x} \\right)';
+            let solution = '\\text{ใช้สูตร } \\frac{d}{dx} e^{ax} = a e^{ax}\\\\ \n' +
+                           '\\frac{d}{dx} e^{' + a + 'x} = ' + a + 'e^{' + a + 'x}';
+            return { display, answer: ans, solution: solution };
+        },
+        // แบบที่ 10: ลอการิทึม
+        function() {
+            let a = rand(1,3);
+            let ans = '\\frac{' + a + '}{' + a + 'x}';
+            let display = '\\displaystyle \\frac{d}{dx} \\left( \\ln(' + a + 'x) \\right)';
+            let solution = '\\text{ใช้สูตร } \\frac{d}{dx} \\ln(ax) = \\frac{1}{x}\\\\ \n' +
+                           '\\frac{d}{dx} \\ln(' + a + 'x) = \\frac{' + a + '}{' + a + 'x} = \\frac{1}{x}';
+            return { display, answer: ans, solution: solution };
+        },
+        // แบบที่ 11: อนุพันธ์อันดับสาม
+        function() {
+            let a = rand(1,4);
+            let ans = (6*a) + '';
+            let display = '\\displaystyle f\'\'\'(x) \\text{ เมื่อ } f(x) = ' + a + 'x^{3} + 2x^{2} + x';
+            let solution = '\\text{หาอนุพันธ์ 3 ครั้ง:}\\\\ \n' +
+                           'f\'(x) = ' + (3*a) + 'x^{2} + 4x + 1\\\\ \n' +
+                           'f\'\'(x) = ' + (6*a) + 'x + 4\\\\ \n' +
+                           'f\'\'\'(x) = ' + (6*a);
+            return { display, answer: ans, solution: solution };
+        },
+        // แบบที่ 12: ผลคูณ + ลูกโซ่
+        function() {
+            let a = rand(1,3), b = rand(1,3), c = rand(1,3);
+            let ans = (a) + 'e^{' + a + 'x} + ' + (b) + '\\cos(' + b + 'x)';
+            let display = '\\displaystyle \\frac{d}{dx} \\left( e^{' + a + 'x} + \\sin(' + b + 'x) \\right)';
+            let solution = '\\text{ดิฟทีละพจน์:}\\\\ \n' +
+                           '\\frac{d}{dx} e^{' + a + 'x} = ' + a + 'e^{' + a + 'x}\\\\ \n' +
+                           '\\frac{d}{dx} \\sin(' + b + 'x) = ' + b + '\\cos(' + b + 'x)\\\\ \n' +
+                           '\\text{รวม: } ' + ans;
+            return { display, answer: ans, solution: solution };
+        }
+    ];
+    let t = pick(templates);
+    let result = t();
+    let options = buildOptions(result.answer, result.answer, 'derivative');
+    return { topic: 'อนุพันธ์', displayLatex: result.display, answer: result.answer, options: options, solution: result.solution };
+}
+
+// ============================================================
+// 4. ปริพันธ์ (10 แม่แบบ) + เฉลยละเอียด
+// ============================================================
+function genIntegral() {
+    let templates = [
+        // แบบที่ 1: อินทิเกรตพหุนาม
+        function() {
+            let a = rand(1,4), n = rand(2,4);
+            let newCoef = a/(n+1);
+            let coefStr = Number.isInteger(newCoef) ? newCoef : newCoef.toFixed(2);
+            let ans = (coefStr === 1 ? '' : coefStr) + 'x^{' + (n+1) + '}+C';
+            let display = '\\displaystyle \\int ' + a + 'x^{' + n + '} \\, dx';
+            let solution = '\\text{ใช้สูตร } \\int ax^n dx = \\frac{a}{n+1} x^{n+1} + C\\\\ \n' +
+                           '\\int ' + a + 'x^{' + n + '} dx = \\frac{' + a + '}{' + (n+1) + '} x^{' + (n+1) + '} + C\\\\ \n' +
+                           '= ' + ans;
+            return { display, answer: ans, solution: solution };
+        },
+        // แบบที่ 2: อินทิกรัลจำกัดเขต
+        function() {
+            let a = rand(1,4), b = rand(1,4), c = rand(1,4);
+            let ans = ((a/3)*c*c*c + (b/2)*c*c).toFixed(2);
+            let display = '\\displaystyle \\int_{0}^{' + c + '} (' + a + 'x^{2}+' + b + 'x) \\, dx';
+            let solution = '\\text{อินทิเกรตแล้วแทนค่าบน - ล่าง:}\\\\ \n' +
+                           '\\int_{0}^{' + c + '} (' + a + 'x^{2}+' + b + 'x) dx\\\\ \n' +
+                           '= \\left[ \\frac{' + a + '}{3}x^{3} + \\frac{' + b + '}{2}x^{2} \\right]_{0}^{' + c + '}\\\\ \n' +
+                           '= \\left( \\frac{' + a + '}{3}' + c + '^{3} + \\frac{' + b + '}{2}' + c + '^{2} \\right) - 0\\\\ \n' +
+                           '= ' + ans;
+            return { display, answer: ans, solution: solution };
+        },
+        // แบบที่ 3: พื้นที่ใต้โค้ง
+        function() {
+            let a = rand(1,3), to = rand(1,3);
+            let ans = (a*to*to*to/3).toFixed(2);
+            let display = '\\displaystyle \\int_{0}^{' + to + '} ' + a + 'x^{2} \\, dx';
+            let solution = '\\text{พื้นที่ใต้โค้ง = } \\int_a^b f(x) dx\\\\ \n' +
+                           '\\int_{0}^{' + to + '} ' + a + 'x^{2} dx = \\left[ \\frac{' + a + '}{3}x^{3} \\right]_{0}^{' + to + '}\\\\ \n' +
+                           '= \\frac{' + a + '}{3}' + to + '^{3} - 0 = ' + ans;
+            return { display, answer: ans, solution: solution };
+        },
+        // แบบที่ 4: พื้นที่ระหว่างเส้นโค้ง
+        function() {
+            let a = rand(1,3);
+            let ans = (a/6).toFixed(2);
+            let display = '\\text{พื้นที่ระหว่าง } y=' + a + 'x^{2} \\text{ และ } y=' + a + 'x';
+            let solution = '\\text{หาจุดตัด: } ' + a + 'x^{2} = ' + a + 'x \\Rightarrow x=0,1\\\\ \n' +
+                           '\\text{พื้นที่ } = \\int_{0}^{1} (' + a + 'x - ' + a + 'x^{2}) dx\\\\ \n' +
+                           '= \\left[ \\frac{' + a + '}{2}x^{2} - \\frac{' + a + '}{3}x^{3} \\right]_{0}^{1}\\\\ \n' +
+                           '= \\frac{' + a + '}{2} - \\frac{' + a + '}{3} = ' + ans;
+            return { display, answer: ans, solution: solution };
+        },
+        // แบบที่ 5: ปริมาตรหมุน
+        function() {
+            let a = rand(1,3), to = rand(1,3);
+            let ans = (a*a*to*to*to/3) + '\\pi';
+            let display = '\\text{หมุน } y=' + a + 'x \\text{ จาก 0 ถึง } ' + to + ' \\text{ รอบแกน } x';
+            let solution = '\\text{ใช้สูตร } V = \\pi \\int_a^b [f(x)]^2 dx\\\\ \n' +
+                           'V = \\pi \\int_{0}^{' + to + '} (' + a + 'x)^{2} dx\\\\ \n' +
+                           '= \\pi \\int_{0}^{' + to + '} ' + (a*a) + 'x^{2} dx\\\\ \n' +
+                           '= \\pi \\left[ \\frac{' + (a*a) + '}{3}x^{3} \\right]_{0}^{' + to + '}\\\\ \n' +
+                           '= ' + (a*a*to*to*to/3) + '\\pi';
+            return { display, answer: ans, solution: solution };
+        },
+        // แบบที่ 6: อินทิเกรตแบบมีวงเล็บ
+        function() {
+            let a = rand(1,3), b = rand(1,3);
+            let ans = (a/2) + 'x^{2} + ' + b + 'x + C';
+            let display = '\\displaystyle \\int (' + a + 'x + ' + b + ') \\, dx';
+            let solution = '\\text{กระจายวงเล็บแล้วอินทิเกรตทีละพจน์:}\\\\ \n' +
+                           '\\int (' + a + 'x + ' + b + ') dx\\\\ \n' +
+                           '= \\frac{' + a + '}{2}x^{2} + ' + b + 'x + C';
+            return { display, answer: ans, solution: solution };
+        },
+        // แบบที่ 7: อินทิเกรตแบบตรวจสอบ
+        function() {
+            let a = rand(1,4), n = rand(2,4);
+            let newCoef = a/(n+1);
+            let coefStr = Number.isInteger(newCoef) ? newCoef : newCoef.toFixed(2);
+            let ans = (coefStr === 1 ? '' : coefStr) + 'x^{' + (n+1) + '}+C';
+            let display = '\\displaystyle \\int ' + a + 'x^{' + n + '} \\, dx \\quad \\text{(ตรวจสอบโดยการดิฟ)}';
+            let solution = '\\text{อินทิเกรต: } \\int ' + a + 'x^{' + n + '} dx = ' + ans + '\\\\ \n' +
+                           '\\text{ตรวจสอบโดยการดิฟ: } \\frac{d}{dx}(' + ans + ') = ' + a + 'x^{' + n + '} \\text{ ถูกต้อง}';
+            return { display, answer: ans, solution: solution };
+        },
+        // แบบที่ 8: อินทิเกรตค่าคงที่
+        function() {
+            let a = rand(1,4);
+            let ans = a + 'x + C';
+            let display = '\\displaystyle \\int ' + a + ' \\, dx';
+            let solution = '\\text{ใช้สูตร } \\int a \\, dx = ax + C\\\\ \n' +
+                           '\\int ' + a + ' dx = ' + a + 'x + C';
+            return { display, answer: ans, solution: solution };
+        },
+        // แบบที่ 9: อินทิเกรตแบบกำลังสอง
+        function() {
+            let a = rand(1,3), b = rand(1,3);
+            let ans = (a/2) + 'x^{2} + ' + (b/3) + 'x^{3} + C';
+            let display = '\\displaystyle \\int (' + a + 'x + ' + b + 'x^{2}) \\, dx';
+            let solution = '\\text{อินทิเกรตทีละพจน์ตามสูตรกำลัง:}\\\\ \n' +
+                           '\\int ' + a + 'x dx = \\frac{' + a + '}{2}x^{2}\\\\ \n' +
+                           '\\int ' + b + 'x^{2} dx = \\frac{' + b + '}{3}x^{3}\\\\ \n' +
+                           '\\text{รวม: } ' + ans;
+            return { display, answer: ans, solution: solution };
+        },
+        // แบบที่ 10: ปริมาตรหมุนแบบมีขอบ
+        function() {
+            let a = rand(1,2), to = rand(1,2);
+            let ans = (a*a*to*to*to*to*to/5) + '\\pi';
+            let display = '\\text{หมุน } y=' + a + 'x^{2} \\text{ จาก 0 ถึง } ' + to + ' \\text{ รอบแกน } x';
+            let solution = '\\text{ใช้สูตร } V = \\pi \\int_a^b [f(x)]^2 dx\\\\ \n' +
+                           'V = \\pi \\int_{0}^{' + to + '} (' + a + 'x^{2})^{2} dx\\\\ \n' +
+                           '= \\pi \\int_{0}^{' + to + '} ' + (a*a) + 'x^{4} dx\\\\ \n' +
+                           '= \\pi \\left[ \\frac{' + (a*a) + '}{5}x^{5} \\right]_{0}^{' + to + '}\\\\ \n' +
+                           '= \\frac{' + (a*a*to*to*to*to*to/5) + '}{5}\\pi';
+            return { display, answer: ans, solution: solution };
+        }
+    ];
+    let t = pick(templates);
+    let result = t();
+    let options = buildOptions(result.answer, result.answer, 'integral');
+    return { topic: 'ปริพันธ์', displayLatex: result.display, answer: result.answer, options: options, solution: result.solution };
+}
+
+// ============================================================
+// 5. ประยุกต์ (10 แม่แบบ) + เฉลยละเอียด
+// ============================================================
+function genApplied() {
+    let templates = [
+        // แบบที่ 1: พื้นที่ใต้โค้ง
+        function() {
+            let a = rand(1,3), to = rand(1,3);
+            let ans = (a*to*to*to/3).toFixed(2);
+            let display = '\\displaystyle \\int_{0}^{' + to + '} ' + a + 'x^{2} \\, dx';
+            let solution = '\\text{พื้นที่ = } \\int_a^b f(x) dx\\\\ \n' +
+                           '\\int_{0}^{' + to + '} ' + a + 'x^{2} dx = \\left[ \\frac{' + a + '}{3}x^{3} \\right]_{0}^{' + to + '}\\\\ \n' +
+                           '= \\frac{' + a + '}{3}' + to + '^{3} = ' + ans;
+            return { display, answer: ans, solution: solution };
+        },
+        // แบบที่ 2: อัตราการเปลี่ยนแปลง
+        function() {
+            let a = rand(1,4), x0 = rand(2,4);
+            let ans = (2*a*x0) + '';
+            let display = '\\text{อัตราการเปลี่ยนแปลงของ } f(x)=' + a + 'x^{2} \\text{ ที่ } x=' + x0;
+            let solution = '\\text{อัตราการเปลี่ยนแปลง = } f\'(x)\\\\ \n' +
+                           'f\'(x) = ' + (2*a) + 'x\\\\ \n' +
+                           'f\'' + x0 + ' = ' + (2*a) + '(' + x0 + ')\\\\ \n' +
+                           '= ' + ans;
+            return { display, answer: ans, solution: solution };
+        },
+        // แบบที่ 3: ค่าสูงสุด-ต่ำสุด
+        function() {
+            let a = rand(1,3);
+            let ans = (a/2).toFixed(2);
+            let display = '\\text{กำหนด } f(x) = -' + a + 'x^{2} + ' + a + 'x + 2 \\text{ จงหาค่า } x \\text{ ที่ทำให้ } f(x) \\text{ มีค่าสูงสุด}';
+            let solution = '\\text{หา } f\'(x)=0:\\\\ \n' +
+                           'f\'(x) = -' + (2*a) + 'x + ' + a + '\\\\ \n' +
+                           '-' + (2*a) + 'x + ' + a + ' = 0\\\\ \n' +
+                           'x = \\frac{' + a + '}{' + (2*a) + '} = ' + ans + '\\\\ \n' +
+                           'f\'\'(x) = -' + (2*a) + ' < 0 \\text{ ดังนั้นเป็นจุดสูงสุด}';
+            return { display, answer: ans, solution: solution };
+        },
+        // แบบที่ 4: ความเร็ว
+        function() {
+            let a = rand(2,5);
+            let ans = (2*a + 3) + '';
+            let display = '\\text{กำหนด } s(t) = ' + a + 't^{2} + 3t \\text{ จงหาความเร็วที่ } t=1';
+            let solution = '\\text{ความเร็ว } v(t) = s\'(t)\\\\ \n' +
+                           'v(t) = ' + (2*a) + 't + 3\\\\ \n' +
+                           'v(1) = ' + (2*a) + '(1) + 3\\\\ \n' +
+                           '= ' + ans;
+            return { display, answer: ans, solution: solution };
+        },
+        // แบบที่ 5: พื้นที่ระหว่างเส้นโค้ง
+        function() {
+            let a = rand(1,3), b = rand(1,3), to = rand(1,3);
+            let ans = ((a*to*to*to/3) + (b*to*to/2)).toFixed(2);
+            let display = '\\displaystyle \\int_{0}^{' + to + '} (' + a + 'x^{2}+' + b + 'x) \\, dx';
+            let solution = '\\text{พื้นที่ระหว่างเส้นโค้ง = } \\int (f-g) dx\\\\ \n' +
+                           '\\int_{0}^{' + to + '} (' + a + 'x^{2}+' + b + 'x) dx\\\\ \n' +
+                           '= \\left[ \\frac{' + a + '}{3}x^{3} + \\frac{' + b + '}{2}x^{2} \\right]_{0}^{' + to + '}\\\\ \n' +
+                           '= ' + ans;
+            return { display, answer: ans, solution: solution };
+        },
+        // แบบที่ 6: ความเร่ง
+        function() {
+            let a = rand(1,4);
+            let ans = (2*a) + '';
+            let display = '\\text{กำหนด } s(t)=' + a + 't^{2}+3t \\text{ จงหาความเร่ง}';
+            let solution = '\\text{ความเร่ง } a(t) = s\'\'(t)\\\\ \n' +
+                           's\'(t) = ' + (2*a) + 't + 3\\\\ \n' +
+                           's\'\'(t) = ' + (2*a) + '\\\\ \n' +
+                           '\\text{ดังนั้นความเร่ง = } ' + ans;
+            return { display, answer: ans, solution: solution };
+        },
+        // แบบที่ 7: ค่าสูงสุดแบบมีพารามิเตอร์
+        function() {
+            let a = rand(1,3), b = rand(2,5);
+            let ans = (b/(2*a)).toFixed(2);
+            let display = '\\text{กำหนด } f(x) = -' + a + 'x^{2}+' + b + 'x+1 \\text{ จงหาค่า } x \\text{ ที่ทำให้ } f(x) \\text{ มีค่าสูงสุด}';
+            let solution = '\\text{หา } f\'(x)=0:\\\\ \n' +
+                           'f\'(x) = -' + (2*a) + 'x + ' + b + '\\\\ \n' +
+                           '-' + (2*a) + 'x + ' + b + ' = 0\\\\ \n' +
+                           'x = \\frac{' + b + '}{' + (2*a) + '} = ' + ans + '\\\\ \n' +
+                           'f\'\'(x) = -' + (2*a) + ' < 0 \\text{ ดังนั้นเป็นจุดสูงสุด}';
+            return { display, answer: ans, solution: solution };
+        },
+        // แบบที่ 8: กำไรสูงสุด
+        function() {
+            let a = rand(1,3), b = rand(1,3);
+            let ans = (a/(2*b)).toFixed(2);
+            let display = '\\text{กำหนด } P(x) = -' + b + 'x^{2}+' + a + 'x-2 \\text{ จงหาปริมาณที่ให้กำไรสูงสุด}';
+            let solution = '\\text{หา } P\'(x)=0:\\\\ \n' +
+                           'P\'(x) = -' + (2*b) + 'x + ' + a + '\\\\ \n' +
+                           '-' + (2*b) + 'x + ' + a + ' = 0\\\\ \n' +
+                           'x = \\frac{' + a + '}{' + (2*b) + '} = ' + ans + '\\\\ \n' +
+                           'P\'\'(x) = -' + (2*b) + ' < 0 \\text{ ดังนั้นเป็นจุดสูงสุด}';
+            return { display, answer: ans, solution: solution };
+        },
+        // แบบที่ 9: ปริมาตรหมุน
+        function() {
+            let a = rand(1,3), to = rand(1,3);
+            let ans = (a*a*to*to*to/3) + '\\pi';
+            let display = '\\text{หมุน } y=' + a + 'x \\text{ จาก 0 ถึง } ' + to + ' \\text{ รอบแกน } x';
+            let solution = '\\text{ใช้สูตร } V = \\pi \\int_a^b [f(x)]^2 dx\\\\ \n' +
+                           'V = \\pi \\int_{0}^{' + to + '} (' + a + 'x)^{2} dx\\\\ \n' +
+                           '= \\pi \\left[ \\frac{' + (a*a) + '}{3}x^{3} \\right]_{0}^{' + to + '}\\\\ \n' +
+                           '= ' + ans;
+            return { display, answer: ans, solution: solution };
+        },
+        // แบบที่ 10: ระยะทางรวม
+        function() {
+            let a = rand(1,3), b = rand(1,3), c = rand(1,3);
+            let ans = (a + b + c) + '';
+            let display = '\\text{กำหนด } s(t) = ' + a + 't^{2} + ' + b + 't + ' + c + ' \\text{ จงหาระยะทางที่ } t=1';
+            let solution = '\\text{ระยะทาง } s(t) \\text{ แทนค่า } t=1\\\\ \n' +
+                           's(1) = ' + a + '(1)^{2} + ' + b + '(1) + ' + c + '\\\\ \n' +
+                           '= ' + a + ' + ' + b + ' + ' + c + ' = ' + ans;
+            return { display, answer: ans, solution: solution };
+        }
+    ];
+    let t = pick(templates);
+    let result = t();
+    let options = buildOptions(result.answer, result.answer, 'applied');
+    return { topic: 'ประยุกต์', displayLatex: result.display, answer: result.answer, options: options, solution: result.solution };
+}
+
+// ============================================================
+// สุ่มหัวข้อ
+// ============================================================
+function genQuestion() {
+    let type = rand(0,4);
+    if(type===0) return genLimit();
+    if(type===1) return genContinuity();
+    if(type===2) return genDerivative();
+    if(type===3) return genIntegral();
+    return genApplied();
+}
+
+// ============================================================
+// เกมหลัก
+// ============================================================
+let playerName='', score=0, hp=5, maxHp=5, combo=0, qCount=0;
+let current=null, selected=null, answered=false, solutionShown=false;
+let usedSet = new Set();
+
+const home=document.getElementById('homeScreen');
+const game=document.getElementById('gameScreen');
+const go=document.getElementById('gameOverScreen');
+const nameInput=document.getElementById('playerNameInput');
+const displayName=document.getElementById('displayName');
+const topicLabel=document.getElementById('topicLabel');
+const questionDisplay=document.getElementById('questionDisplay');
+const optionsGrid=document.getElementById('optionsGrid');
+const statusMsg=document.getElementById('statusMessage');
+const scoreDisplay=document.getElementById('scoreDisplay');
+const comboDisplay=document.getElementById('comboDisplay');
+const hpFill=document.getElementById('hpFill');
+const hpText=document.getElementById('hpText');
+const finalScore=document.getElementById('finalScore');
+const lbList=document.getElementById('leaderboardList');
+const solutionBox=document.getElementById('solutionBox');
+
+function getLB(){ try{ return JSON.parse(localStorage.getItem('calcSurvivalLB'))||[]; }catch(e){ return []; } }
+function saveLB(lb){ localStorage.setItem('calcSurvivalLB',JSON.stringify(lb)); }
+function addScore(name,sc){ let lb=getLB(); lb.push({name,score:sc}); lb.sort((a,b)=>b.score-a.score); if(lb.length>50) lb=lb.slice(0,50); saveLB(lb); renderLB(); }
+function renderLB(){
+    let lb=getLB();
+    if(!lb.length){ lbList.innerHTML='<div class="no-data">ยังไม่มีข้อมูล</div>'; return; }
+    lbList.innerHTML=lb.map((x,i)=>`<div class="lb-item"><span class="rank">#${i+1}</span><span class="name">${esc(x.name)}</span><span class="score">${x.score}</span></div>`).join('');
+}
+function esc(t){ let d=document.createElement('div'); d.textContent=t; return d.innerHTML; }
+
+function loadQ(){
+    if(usedSet.size > 200) usedSet.clear();
+    let q, attempts=0;
+    do{
+        q = genQuestion();
+        attempts++;
+        let key = q.topic + '|' + q.displayLatex;
+        if(!usedSet.has(key)) break;
+        if(attempts>50) break;
+    }while(true);
+    usedSet.add(q.topic + '|' + q.displayLatex);
+    current = q;
+    qCount++;
+    let topicEmoji = {'ลิมิต':'📘','ความต่อเนื่อง':'🔗','อนุพันธ์':'📈','ปริพันธ์':'📊','ประยุกต์':'🎯'};
+    let shortTopic = q.topic.replace(' (พื้นที่)','').replace(' (อัตรา)','').replace(' (ค่าสูงสุด)','').replace(' (การเคลื่อนที่)','').replace(' (ปริมาตร)','');
+    topicLabel.innerHTML = (topicEmoji[q.topic]||'📘')+' '+shortTopic+'  |  ข้อ '+qCount;
+    setLatex(questionDisplay, q.displayLatex);
+    let labels=['A','B','C','D'];
+    optionsGrid.innerHTML='';
+    q.options.forEach((opt,i)=>{
+        let b=document.createElement('button');
+        b.className='option-btn';
+        b.dataset.index=i;
+        let optHtml = renderLatex(opt);
+        b.innerHTML = '<span class="label">'+labels[i]+'.</span> '+optHtml;
+        b.onclick=function(){
+            if(answered) return;
+            document.querySelectorAll('.option-btn').forEach(x=>x.classList.remove('selected'));
+            this.classList.add('selected');
+            selected=i;
+            statusMsg.textContent='✅ เลือก '+labels[i]+' แล้ว';
+            statusMsg.style.color='#b4c9ff';
+            solutionBox.style.display = 'none';
+            solutionShown = false;
+        };
+        optionsGrid.appendChild(b);
+    });
+    selected=null; answered=false; solutionShown=false;
+    solutionBox.style.display = 'none';
+    statusMsg.textContent='✨ เลือกข้อแล้วกดยืนยัน';
+    statusMsg.style.color='#b4c9ff';
+}
+
+function updHP(){ let p=(hp/maxHp)*100; hpFill.style.width=p+'%'; hpFill.style.background=hp>3?'#7fdb9a':hp>1?'#f7c948':'#ff6b6b'; hpText.textContent=hp; }
+function updScore(){ scoreDisplay.textContent='⭐ คะแนน: '+score; comboDisplay.textContent='🔥 คอมโบ: '+combo; }
+
+function showSolution(){
+    if(!current) return;
+    if(solutionShown){
+        solutionBox.style.display = 'none';
+        solutionShown = false;
+        return;
+    }
+    let steps = [];
+    steps.push('\\text{📌 โจทย์ข้อนี้เป็น } ' + current.topic);
+    let solLines = current.solution.split('\\\\ \n');
+    for(let line of solLines) {
+        if(line.trim()) steps.push(line.trim());
+    }
+    let html = steps.map(s => `<div class="step">${renderLatex(s)}</div>`).join('');
+    solutionBox.innerHTML = html;
+    solutionBox.style.display = 'block';
+    solutionShown = true;
+}
+
+function confirmAns(){
+    if(!current||answered||selected===null){ if(selected===null){ statusMsg.textContent='⚠️ กรุณาเลือกก่อน!'; statusMsg.style.color='#f7a74a'; } return; }
+    answered=true;
+    let btns=document.querySelectorAll('.option-btn');
+    btns.forEach(b=>b.classList.add('disabled'));
+    let correctIdx = current.options.indexOf(current.answer);
+    if(correctIdx===-1) correctIdx=0;
+    let isCorrect = (selected===correctIdx);
+    btns.forEach((b,i)=>{ if(i===correctIdx) b.classList.add('correct-show'); else if(i===selected&&!isCorrect) b.classList.add('wrong-show'); });
+    if(isCorrect){ combo++; let bonus=Math.floor(combo/3)+1; let add=1+bonus; score+=add; statusMsg.textContent='🎉 ถูก! +'+add+' คะแนน (คอมโบ x'+bonus+')'; statusMsg.style.color='#7fdb9a'; updScore(); setTimeout(loadQ,1000); }
+    else{ hp--; combo=0; updHP(); updScore(); statusMsg.textContent='❌ ผิด! ตอบคือ '+current.answer+' เสียพลัง 1'; statusMsg.style.color='#f77a7a'; if(hp<=0){ setTimeout(()=>gameOver(),800); return; } setTimeout(loadQ,1200); }
+}
+function skipQ(){
+    if(!current||answered) return;
+    answered=true;
+    let btns=document.querySelectorAll('.option-btn');
+    btns.forEach(b=>b.classList.add('disabled'));
+    let ci=current.options.indexOf(current.answer);
+    if(ci===-1) ci=0;
+    btns.forEach((b,i)=>{ if(i===ci) b.classList.add('correct-show'); });
+    statusMsg.textContent='⏭️ ข้าม! ตอบคือ '+current.answer;
+    statusMsg.style.color='#b9c6e0';
+    setTimeout(loadQ,1000);
+}
+function gameOver(){
+    game.style.display='none';
+    go.style.display='block';
+    finalScore.textContent=score;
+    if(playerName&&score>0) addScore(playerName,score);
+}
+function startGame(name){
+    playerName=name.trim()||'ผู้เล่น';
+    displayName.textContent='👤 '+playerName;
+    score=0; hp=maxHp; combo=0; qCount=0; usedSet.clear();
+    updHP(); updScore();
+    home.style.display='none';
+    game.style.display='block';
+    go.style.display='none';
+    loadQ();
+}
+function quitGame(){
+    game.style.display='none';
+    go.style.display='none';
+    home.style.display='block';
+    renderLB();
+}
+
+document.getElementById('startGameBtn').onclick=function(){ let n=nameInput.value; if(!n.trim()){ alert('กรุณาใส่ชื่อ'); return; } startGame(n); };
+document.getElementById('quitBtn').onclick=quitGame;
+document.getElementById('homeBtn').onclick=quitGame;
+document.getElementById('retryBtn').onclick=function(){ go.style.display='none'; startGame(playerName); };
+document.getElementById('confirmBtn').onclick=confirmAns;
+document.getElementById('skipBtn').onclick=skipQ;
+document.getElementById('solutionBtn').onclick=showSolution;
+document.getElementById('clearLeaderboardBtn').onclick=function(){ if(confirm('ล้างคะแนน?')){ saveLB([]); renderLB(); } };
+nameInput.onkeypress=function(e){ if(e.key==='Enter') document.getElementById('startGameBtn').click(); };
+
+renderLB();
+home.style.display='block';
+game.style.display='none';
+go.style.display='none';
+</script>
+</body>
+</html>
