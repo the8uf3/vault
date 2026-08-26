@@ -1,0 +1,65 @@
+{
+  "total": 528,
+  "files": [
+    {
+      "file": "teat-law1.md",
+      "subject": "พ.ร.บ.ระเบียบบริหารราชการแผ่นดิน",
+      "expected": 155,
+      "parsed": 155,
+      "withAnswer": 155,
+      "choiceMin": 4,
+      "choiceMax": 5,
+      "invalidChoices": 0
+    },
+    {
+      "file": "test-law2.md",
+      "subject": "พ.ร.ฎ.ว่าด้วยหลักเกณฑ์และวิธีบริหารกิจการบ้านเมืองที่ดี",
+      "expected": 100,
+      "parsed": 100,
+      "withAnswer": 100,
+      "choiceMin": 4,
+      "choiceMax": 6,
+      "invalidChoices": 0
+    },
+    {
+      "file": "test-law3.md",
+      "subject": "พ.ร.บ.วิธีปฏิบัติราชการทางปกครอง",
+      "expected": 103,
+      "parsed": 103,
+      "withAnswer": 103,
+      "choiceMin": 4,
+      "choiceMax": 4,
+      "invalidChoices": 0
+    },
+    {
+      "file": "test-law4.md",
+      "subject": "พ.ร.บ.มาตรฐานทางจริยธรรม",
+      "expected": 70,
+      "parsed": 70,
+      "withAnswer": 70,
+      "choiceMin": 4,
+      "choiceMax": 8,
+      "invalidChoices": 0
+    },
+    {
+      "file": "test-law5.md",
+      "subject": "พ.ร.บ.ความรับผิดทางละเมิดของเจ้าหน้าที่",
+      "expected": 65,
+      "parsed": 65,
+      "withAnswer": 65,
+      "choiceMin": 4,
+      "choiceMax": 5,
+      "invalidChoices": 0
+    },
+    {
+      "file": "test-law6.md",
+      "subject": "ประมวลกฎหมายอาญา: ความผิดต่อตำแหน่งหน้าที่ราชการ",
+      "expected": 35,
+      "parsed": 35,
+      "withAnswer": 35,
+      "choiceMin": 4,
+      "choiceMax": 6,
+      "invalidChoices": 0
+    }
+  ]
+}
