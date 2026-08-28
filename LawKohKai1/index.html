@@ -147,6 +147,65 @@ header p { color: var(--muted); font-size: 0.85rem; margin-top: 4px; }
 .btn-wrong{background:#f59e0b;color:#fff}
 .btn-restart{background:#334155;color:#e2e8f0}
 .wrong-badge{background:#f59e0b;color:#fff;font-size:.7rem;padding:2px 8px;border-radius:10px;margin-left:6px}
+
+#qText, .q-text {
+  white-space: pre-wrap !important;
+  word-break: break-word !important;
+  overflow: visible !important;
+  max-height: none !important;
+  font-size: 1rem;
+  line-height: 1.65;
+}
+.q-box, #qBox {
+  overflow: visible !important;
+  max-height: none !important;
+}
+.opt, .option {
+  white-space: pre-wrap !important;
+  word-break: break-word !important;
+  overflow: visible !important;
+  max-height: none !important;
+  line-height: 1.5;
+}
+#quiz, .quiz-area {
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+
+
+#qText {
+  white-space: pre-wrap !important;
+  word-break: break-word !important;
+  overflow: visible !important;
+  max-height: none !important;
+  line-height: 1.65;
+}
+.opt {
+  white-space: pre-wrap !important;
+  word-break: break-word !important;
+}
+
+.feedback, .feedback.show, #feedback {
+  white-space: pre-wrap !important;
+  word-break: break-word !important;
+  overflow: visible !important;
+  max-height: none !important;
+  height: auto !important;
+  line-height: 1.6 !important;
+  font-size: 0.88rem !important;
+  padding: 12px 14px !important;
+  margin: 10px 0 !important;
+}
+#qText {
+  white-space: pre-wrap !important;
+  word-break: break-word !important;
+  overflow: visible !important;
+  max-height: none !important;
+}
+.opt { white-space: pre-wrap !important; word-break: break-word !important; }
+#quiz { overflow-y: auto !important; -webkit-overflow-scrolling: touch; }
+
 </style>
 </head>
 <body>
@@ -225,18 +284,9 @@ function loadData() {
     } catch (e) { console.error(e); }
   }
   fetch('questions.json')
-    .then(r => {
-      if (!r.ok) throw new Error('HTTP ' + r.status);
-      return r.json();
-    })
-    .then(d => {
-      QUESTIONS = d;
-      renderLevels();
-    })
-    .catch(e => {
-      console.error(e);
-      toast('โหลดข้อสอบไม่สำเร็จ');
-    });
+    .then(r => { if (!r.ok) throw new Error('HTTP '+r.status); return r.json(); })
+    .then(d => { QUESTIONS = d; renderLevels(); })
+    .catch(e => { console.error(e); toast('โหลดข้อสอบไม่สำเร็จ'); });
 }
 
 function getProgress() {
@@ -366,7 +416,7 @@ function showQ() {
       answered = true;
       const fb = document.getElementById('feedback');
       fb.className = 'feedback show ok';
-      fb.textContent = '✅ เฉลย: ' + q.a + (q.opts[q.a] ? ' — ' + q.opts[q.a] : '');
+      fb.textContent = '✅ เฉลย: ' + q.a + (q.opts[q.a] ? ' — ' + q.opts[q.a] : '') + (q.exp ? '\n\n📖 ' + q.exp : '');
       document.getElementById('nextBtn').style.display = 'flex';
       if (idx === currentQs.length - 1) document.getElementById('nextBtn').textContent = 'ดูผลคะแนน';
     };
@@ -383,12 +433,12 @@ function selectOpt(letter, btn) {
   all.forEach(el => el.classList.add('disabled'));
 
   const fb = document.getElementById('feedback');
+  const exp = q.exp ? '\n\n📖 ' + q.exp : '';
   if (letter === correct) {
     score++;
     btn.classList.add('correct');
     fb.className = 'feedback show ok';
-    fb.textContent = '✅ ถูกต้อง!';
-    // ลบออกจากรายการข้อผิด
+    fb.textContent = '✅ ถูกต้อง!' + exp;
     try {
       const pp = getProgress();
       if (pp[currentLevel] && pp[currentLevel].wrongIds) {
@@ -403,8 +453,8 @@ function selectOpt(letter, btn) {
         el.classList.add('correct');
     });
     fb.className = 'feedback show bad';
-    fb.textContent = '❌ ผิด — เฉลยข้อ ' + correct + (q.opts[correct] ? ': ' + q.opts[correct] : '');
-    // เก็บข้อที่ผิด
+    const ansText = q.opts[correct] ? (correct + ' — ' + q.opts[correct]) : correct;
+    fb.textContent = '❌ ผิด — เฉลยข้อ ' + ansText + exp;
     try {
       const pp = getProgress();
       if (!pp[currentLevel]) pp[currentLevel] = { played: 0, best: 0, answered: 0, wrongIds: [] };
@@ -413,7 +463,6 @@ function selectOpt(letter, btn) {
       saveProgress(pp);
     } catch(e) {}
   }
-  // บันทึกความคืบหน้า + ข้อล่าสุด
   try {
     const p2 = getProgress();
     if (!p2[currentLevel]) p2[currentLevel] = { played: 0, best: 0, answered: 0, wrongIds: [] };
