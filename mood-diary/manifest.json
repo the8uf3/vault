@@ -1,0 +1,19 @@
+{
+  "name": "Me Sati ?",
+  "short_name": "Me Sati ?",
+  "description": "ไดอารี่สะท้อนตัวเอง รู้ทันอารมณ์และมีสติ",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f8fafc",
+  "theme_color": "#6366f1",
+  "orientation": "portrait",
+  "lang": "th",
+  "icons": [
+    {
+      "src": "icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
