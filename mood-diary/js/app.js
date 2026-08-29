@@ -34,7 +34,18 @@ document.addEventListener('DOMContentLoaded', async () => {
   navigate('calendar');
 
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('sw.js').catch(console.warn);
+    navigator.serviceWorker.register('./sw.js').then((reg) => {
+      reg.update().catch(() => {});
+      reg.addEventListener('updatefound', () => {
+        const worker = reg.installing;
+        if (!worker) return;
+        worker.addEventListener('statechange', () => {
+          if (worker.state === 'installed' && navigator.serviceWorker.controller) {
+            showUpdateBanner();
+          }
+        });
+      });
+    }).catch(console.warn);
   }
 });
 
@@ -1181,6 +1192,29 @@ function showToast(msg) {
   toast.textContent = msg;
   toast.classList.remove('hidden');
   setTimeout(() => toast.classList.add('hidden'), 2500);
+}
+
+function showUpdateBanner() {
+  if (document.getElementById('update-banner')) return;
+  const bar = document.createElement('div');
+  bar.id = 'update-banner';
+  bar.className = 'update-banner';
+  bar.innerHTML = `
+    <span>มีเวอร์ชันใหม่</span>
+    <button type="button" id="update-reload-btn">อัปเดตเลย</button>
+  `;
+  document.body.appendChild(bar);
+  document.getElementById('update-reload-btn').addEventListener('click', () => {
+    // tell waiting SW to activate if any, then reload
+    if (navigator.serviceWorker.controller) {
+      navigator.serviceWorker.getRegistration().then((reg) => {
+        if (reg && reg.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+        window.location.reload();
+      });
+    } else {
+      window.location.reload();
+    }
+  });
 }
 
 function escapeHtml(str) {

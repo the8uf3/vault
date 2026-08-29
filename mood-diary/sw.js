@@ -1,4 +1,4 @@
-const CACHE_NAME = 'mood-diary-v1';
+const CACHE_NAME = 'me-sati-v3';
 const ASSETS = [
   './',
   './index.html',
@@ -21,21 +21,28 @@ self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) =>
       Promise.all(keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k)))
-    )
+    ).then(() => self.clients.claim())
   );
-  self.clients.claim();
 });
 
+// Network-first for app shell (so updates show up), cache fallback for offline
 self.addEventListener('fetch', (event) => {
+  const req = event.request;
+  if (req.method !== 'GET') return;
+
+  const url = new URL(req.url);
+  const isLocal = url.origin === self.location.origin;
+  if (!isLocal) return; // CDN (chart.js) — network only
+
   event.respondWith(
-    caches.match(event.request).then((cached) => {
-      return cached || fetch(event.request).then((response) => {
-        if (response && response.status === 200 && event.request.method === 'GET') {
+    fetch(req)
+      .then((response) => {
+        if (response && response.status === 200) {
           const clone = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+          caches.open(CACHE_NAME).then((cache) => cache.put(req, clone));
         }
         return response;
-      }).catch(() => cached);
-    })
+      })
+      .catch(() => caches.match(req).then((cached) => cached || caches.match('./index.html')))
   );
 });
