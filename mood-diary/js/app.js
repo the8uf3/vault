@@ -460,12 +460,12 @@ function renderItemCard(item) {
         <div class="text-sm text-muted mb-1">อารมณ์ / ความรู้สึก</div>
         <div class="chip-group item-feelings">
           ${feelings.map(t => `
-            <span class="chip ${item.type} ${(item.feelingTags || []).includes(t) ? 'selected' : ''}" data-feeling="${t}">${t}</span>
+            <button type="button" class="chip ${item.type} ${(item.feelingTags || []).includes(t) ? 'selected' : ''}" data-feeling="${t}">${t}</button>
           `).join('')}
         </div>
         <input type="text" class="item-custom-feeling mt-1" placeholder="แท็กอารมณ์อื่น (Enter)" style="font-size:0.85rem">
         ${(item.feelingTags || []).filter(t => !feelings.includes(t)).map(t => `
-          <span class="chip selected ${item.type}" style="margin-top:4px" data-custom-feeling="${t}">${t} ✕</span>
+          <button type="button" class="chip selected ${item.type}" style="margin-top:4px" data-custom-feeling="${t}">${t} ✕</button>
         `).join('')}
       </div>
 
@@ -473,12 +473,12 @@ function renderItemCard(item) {
         <div class="text-sm text-muted mb-1">เกี่ยวกับอะไร</div>
         <div class="chip-group item-contexts">
           ${CONTEXT_PRESETS.map(t => `
-            <span class="chip ${(item.contextTags || []).includes(t) ? 'selected' : ''}" data-context="${t}">${t}</span>
+            <button type="button" class="chip ${(item.contextTags || []).includes(t) ? 'selected' : ''}" data-context="${t}">${t}</button>
           `).join('')}
         </div>
         <input type="text" class="item-custom-context mt-1" placeholder="บริบทอื่น (Enter)" style="font-size:0.85rem">
         ${(item.contextTags || []).filter(t => !CONTEXT_PRESETS.includes(t)).map(t => `
-          <span class="chip selected" style="margin-top:4px" data-custom-context="${t}">${t} ✕</span>
+          <button type="button" class="chip selected" style="margin-top:4px" data-custom-context="${t}">${t} ✕</button>
         `).join('')}
       </div>
 
@@ -489,6 +489,23 @@ function renderItemCard(item) {
   `;
 }
 
+/** Mobile-friendly tap (handles touch + click without double-fire) */
+function onTap(el, handler) {
+  if (!el) return;
+  let lastTouch = 0;
+  el.addEventListener('touchend', (e) => {
+    // ignore multi-touch / scroll gestures
+    if (e.changedTouches && e.changedTouches.length > 1) return;
+    lastTouch = Date.now();
+    e.preventDefault();
+    handler(e);
+  }, { passive: false });
+  el.addEventListener('click', (e) => {
+    if (Date.now() - lastTouch < 400) return; // already handled by touchend
+    handler(e);
+  });
+}
+
 function bindItemEvents() {
   document.querySelectorAll('.item-card').forEach(card => {
     const id = card.dataset.id;
@@ -497,30 +514,31 @@ function bindItemEvents() {
 
     card.querySelector('.item-text').addEventListener('input', (e) => { item.text = e.target.value; });
 
-    card.querySelector('.remove-item').addEventListener('click', () => {
+    onTap(card.querySelector('.remove-item'), () => {
       state.form.items = state.form.items.filter(i => i.id !== id);
       renderEntryModal();
     });
 
     card.querySelectorAll('.intensity-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
+      onTap(btn, () => {
         item.intensity = parseInt(btn.dataset.lv);
         renderEntryModal();
       });
     });
 
     card.querySelectorAll('.chip[data-feeling]').forEach(chip => {
-      chip.addEventListener('click', () => {
+      onTap(chip, () => {
         const tag = chip.dataset.feeling;
-        const idx = (item.feelingTags || []).indexOf(tag);
+        item.feelingTags = item.feelingTags || [];
+        const idx = item.feelingTags.indexOf(tag);
         if (idx >= 0) item.feelingTags.splice(idx, 1);
-        else { item.feelingTags = item.feelingTags || []; item.feelingTags.push(tag); }
+        else item.feelingTags.push(tag);
         chip.classList.toggle('selected');
       });
     });
 
     card.querySelectorAll('.chip[data-custom-feeling]').forEach(chip => {
-      chip.addEventListener('click', () => {
+      onTap(chip, () => {
         item.feelingTags = (item.feelingTags || []).filter(t => t !== chip.dataset.customFeeling);
         renderEntryModal();
       });
@@ -541,17 +559,18 @@ function bindItemEvents() {
     });
 
     card.querySelectorAll('.chip[data-context]').forEach(chip => {
-      chip.addEventListener('click', () => {
+      onTap(chip, () => {
         const tag = chip.dataset.context;
-        const idx = (item.contextTags || []).indexOf(tag);
+        item.contextTags = item.contextTags || [];
+        const idx = item.contextTags.indexOf(tag);
         if (idx >= 0) item.contextTags.splice(idx, 1);
-        else { item.contextTags = item.contextTags || []; item.contextTags.push(tag); }
+        else item.contextTags.push(tag);
         chip.classList.toggle('selected');
       });
     });
 
     card.querySelectorAll('.chip[data-custom-context]').forEach(chip => {
-      chip.addEventListener('click', () => {
+      onTap(chip, () => {
         item.contextTags = (item.contextTags || []).filter(t => t !== chip.dataset.customContext);
         renderEntryModal();
       });
