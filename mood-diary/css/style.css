@@ -1621,3 +1621,71 @@ input:focus, textarea:focus, select:focus {
 .update-banner button:active {
   background: rgba(255,255,255,0.35);
 }
+
+/* Context factor horizontal bars */
+.factor-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.factor-row {
+  display: grid;
+  grid-template-columns: 72px 1fr 40px;
+  align-items: center;
+  gap: 8px;
+}
+.factor-name {
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-align: right;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.factor-track-wrap {
+  height: 14px;
+  background: var(--bg);
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+.factor-track {
+  height: 100%;
+  display: flex;
+  border-radius: 8px;
+  overflow: hidden;
+  min-width: 4px;
+}
+.factor-seg {
+  height: 100%;
+  min-width: 2px;
+}
+.factor-seg.neg { background: #ef4444; }
+.factor-seg.pos { background: #10b981; }
+.factor-pct {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-align: right;
+}
+.factor-legend {
+  display: flex;
+  gap: 16px;
+  margin-top: 12px;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  justify-content: center;
+}
+.factor-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.factor-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+}
+.factor-dot.neg { background: #ef4444; }
+.factor-dot.pos { background: #10b981; }

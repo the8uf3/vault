@@ -816,6 +816,39 @@ function renderInsights(container) {
         `;
       })()}
 
+      ${insight.contextFactors && insight.contextFactors.length ? `
+        <div class="chart-card">
+          <div class="card-title">🏷️ ปัจจัยที่เกี่ยวข้อง</div>
+          <p class="text-sm text-muted mb-2">รวมจากอารมณ์บวกและลบ · แท่งยาว = เจอบ่อยกว่า</p>
+          <div class="factor-bars">
+            ${insight.contextFactors.slice(0, 8).map(f => {
+              const pct = insight.contextTotal ? Math.round((f.total / insight.contextTotal) * 100) : 0;
+              const negPct = f.total ? (f.neg / f.total) * 100 : 0;
+              const posPct = f.total ? (f.pos / f.total) * 100 : 0;
+              // bar width relative to top factor
+              const maxT = insight.contextFactors[0].total || 1;
+              const barW = Math.max(8, Math.round((f.total / maxT) * 100));
+              return `
+                <div class="factor-row">
+                  <div class="factor-name">${escapeHtml(f.name)}</div>
+                  <div class="factor-track-wrap">
+                    <div class="factor-track" style="width:${barW}%">
+                      ${f.neg ? `<div class="factor-seg neg" style="width:${negPct}%"></div>` : ''}
+                      ${f.pos ? `<div class="factor-seg pos" style="width:${posPct}%"></div>` : ''}
+                    </div>
+                  </div>
+                  <div class="factor-pct">${pct}%</div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+          <div class="factor-legend">
+            <span><i class="factor-dot neg"></i>เชิงลบ</span>
+            <span><i class="factor-dot pos"></i>เชิงบวก</span>
+          </div>
+        </div>
+      ` : ''}
+
       ${insight.totalNegFeel > 0 ? `
         <div class="chart-card">
           <div class="card-title">😤 อารมณ์เชิงลบ</div>

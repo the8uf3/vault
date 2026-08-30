@@ -608,6 +608,15 @@ function getInsightData(entries) {
   const totalNegFeel = Object.values(feelingNeg).reduce((s, d) => s + d.count, 0);
   const totalPosFeel = Object.values(feelingPos).reduce((s, d) => s + d.count, 0);
 
+  // Combined context factors (neg + pos) for ranked visual bars
+  const allCtxNames = new Set([...Object.keys(ctxNegAll), ...Object.keys(ctxPosAll)]);
+  const contextFactors = [...allCtxNames].map(name => {
+    const neg = ctxNegAll[name] || 0;
+    const pos = ctxPosAll[name] || 0;
+    return { name, neg, pos, total: neg + pos };
+  }).sort((a, b) => b.total - a.total);
+  const contextTotal = contextFactors.reduce((s, c) => s + c.total, 0);
+
   return {
     topFeelingsNeg: sortFeelings(feelingNeg),
     topFeelingsPos: sortFeelings(feelingPos),
@@ -615,6 +624,8 @@ function getInsightData(entries) {
     topCtxPos: topOverallCtx(ctxPosAll),
     totalNegFeel,
     totalPosFeel,
+    contextFactors,
+    contextTotal,
     intensityDist,
     periodDays,
     periodLowMood
