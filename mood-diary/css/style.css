@@ -67,9 +67,20 @@ html, body {
 }
 
 .logo {
-  font-size: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1.2rem;
   font-weight: 700;
   color: var(--primary);
+  margin: 0;
+}
+.logo-img {
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+  flex-shrink: 0;
+  display: block;
 }
 
 .icon-btn {
@@ -1689,3 +1700,61 @@ input:focus, textarea:focus, select:focus {
 }
 .factor-dot.neg { background: #ef4444; }
 .factor-dot.pos { background: #10b981; }
+
+button.factor-row {
+  width: 100%;
+  border: none;
+  background: transparent;
+  padding: 6px 4px;
+  margin: 0;
+  border-radius: 10px;
+  cursor: pointer;
+  font-family: inherit;
+  color: inherit;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+button.factor-row:active,
+button.factor-row:focus-visible {
+  background: rgba(239, 68, 68, 0.12);
+}
+button.factor-row:active .factor-track-wrap {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.25);
+}
+.factor-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  line-height: 1.15;
+  min-width: 40px;
+}
+.factor-count {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text);
+}
+.factor-pct {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+.factor-row {
+  grid-template-columns: 72px 1fr 44px;
+}
+.factor-popup-bar {
+  display: flex;
+  height: 12px;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 12px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+}
+.factor-popup-neg strong { color: #ef4444; }
+.factor-popup-pos strong { color: #10b981; }
+.factor-popup-note {
+  margin-top: 10px;
+  color: var(--text-muted);
+}
+.factor-popup-note.warn { color: #b45309; }
+.factor-popup-note.good { color: #059669; }

@@ -690,7 +690,6 @@ function topCtxText(topCtx) {
 }
 
 function showFeelPopup(feeling) {
-  // remove existing
   document.getElementById('feel-popup')?.remove();
 
   const ctxHtml = feeling.contexts && feeling.contexts.length
@@ -712,6 +711,51 @@ function showFeelPopup(feeling) {
       <div class="feel-popup-body">
         <div class="text-sm text-muted mb-1">บริบทที่เกี่ยวข้อง</div>
         ${ctxHtml}
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay || e.target.id === 'feel-popup-close') overlay.remove();
+  });
+}
+
+function showFactorPopup(factor, contextTotal) {
+  document.getElementById('feel-popup')?.remove();
+  const pct = contextTotal ? Math.round((factor.total / contextTotal) * 100) : 0;
+  const negShare = factor.total ? Math.round((factor.neg / factor.total) * 100) : 0;
+  const posShare = factor.total ? Math.round((factor.pos / factor.total) * 100) : 0;
+
+  const overlay = document.createElement('div');
+  overlay.id = 'feel-popup';
+  overlay.className = 'feel-popup-overlay';
+  overlay.innerHTML = `
+    <div class="feel-popup-card">
+      <div class="feel-popup-header">
+        <strong>${escapeHtml(factor.name)}</strong>
+        <span class="text-muted">${factor.total} ครั้ง · ${pct}%</span>
+        <button class="btn-icon" id="feel-popup-close">✕</button>
+      </div>
+      <div class="feel-popup-body">
+        <div class="factor-popup-bar">
+          ${factor.neg ? `<div class="factor-seg neg" style="width:${negShare}%"></div>` : ''}
+          ${factor.pos ? `<div class="factor-seg pos" style="width:${posShare}%"></div>` : ''}
+        </div>
+        <div class="feel-popup-ctx factor-popup-neg">
+          <span>😤 เชิงลบ</span>
+          <strong>${factor.neg} ครั้ง</strong>
+        </div>
+        <div class="feel-popup-ctx factor-popup-pos">
+          <span>🌟 เชิงบวก</span>
+          <strong>${factor.pos} ครั้ง</strong>
+        </div>
+        ${factor.neg > factor.pos ? `
+          <p class="text-sm factor-popup-note warn">ปัจจัยนี้โผล่กับอารมณ์เชิงลบบ่อยกว่า</p>
+        ` : factor.pos > factor.neg ? `
+          <p class="text-sm factor-popup-note good">ปัจจัยนี้โผล่กับอารมณ์เชิงบวกบ่อยกว่า</p>
+        ` : `
+          <p class="text-sm factor-popup-note">สัดส่วนบวก–ลบใกล้เคียงกัน</p>
+        `}
       </div>
     </div>
   `;
@@ -819,17 +863,16 @@ function renderInsights(container) {
       ${insight.contextFactors && insight.contextFactors.length ? `
         <div class="chart-card">
           <div class="card-title">🏷️ ปัจจัยที่เกี่ยวข้อง</div>
-          <p class="text-sm text-muted mb-2">รวมจากอารมณ์บวกและลบ · แท่งยาว = เจอบ่อยกว่า</p>
-          <div class="factor-bars">
-            ${insight.contextFactors.slice(0, 8).map(f => {
+          <p class="text-sm text-muted mb-2">รวมจากอารมณ์บวกและลบ · แตะแท่งเพื่อดูรายละเอียด</p>
+          <div class="factor-bars" id="factor-bars">
+            ${insight.contextFactors.slice(0, 8).map((f, idx) => {
               const pct = insight.contextTotal ? Math.round((f.total / insight.contextTotal) * 100) : 0;
               const negPct = f.total ? (f.neg / f.total) * 100 : 0;
               const posPct = f.total ? (f.pos / f.total) * 100 : 0;
-              // bar width relative to top factor
               const maxT = insight.contextFactors[0].total || 1;
               const barW = Math.max(8, Math.round((f.total / maxT) * 100));
               return `
-                <div class="factor-row">
+                <button type="button" class="factor-row" data-factor-idx="${idx}">
                   <div class="factor-name">${escapeHtml(f.name)}</div>
                   <div class="factor-track-wrap">
                     <div class="factor-track" style="width:${barW}%">
@@ -837,8 +880,11 @@ function renderInsights(container) {
                       ${f.pos ? `<div class="factor-seg pos" style="width:${posPct}%"></div>` : ''}
                     </div>
                   </div>
-                  <div class="factor-pct">${pct}%</div>
-                </div>
+                  <div class="factor-meta">
+                    <span class="factor-count">${f.total}</span>
+                    <span class="factor-pct">${pct}%</span>
+                  </div>
+                </button>
               `;
             }).join('')}
           </div>
@@ -917,6 +963,14 @@ function renderInsights(container) {
     });
   });
   document.getElementById('analysis-info-btn')?.addEventListener('click', showAnalysisInfo);
+
+  document.querySelectorAll('#factor-bars .factor-row').forEach(row => {
+    row.addEventListener('click', () => {
+      const idx = parseInt(row.dataset.factorIdx, 10);
+      const f = insight.contextFactors[idx];
+      if (f) showFactorPopup(f, insight.contextTotal);
+    });
+  });
 
   if (stats.totalDays > 0) {
     requestAnimationFrame(() => {

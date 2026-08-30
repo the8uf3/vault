@@ -1,5 +1,25 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
-  <rect width="128" height="128" rx="28" fill="#6366f1"/>
-  <text x="64" y="58" font-size="36" text-anchor="middle">🧘</text>
-  <text x="64" y="88" font-size="16" font-weight="700" text-anchor="middle" fill="white" font-family="system-ui">Me? Sati</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Me Sati">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#818cf8"/>
+      <stop offset="100%" stop-color="#4f46e5"/>
+    </linearGradient>
+    <linearGradient id="ring" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="1"/>
+      <stop offset="100%" stop-color="#e0e7ff" stop-opacity="0.95"/>
+    </linearGradient>
+  </defs>
+  <!-- App background -->
+  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+  <!-- Outer awareness ring -->
+  <circle cx="256" cy="240" r="118" fill="none" stroke="url(#ring)" stroke-width="22" opacity="0.95"/>
+  <!-- Inner calm circle -->
+  <circle cx="256" cy="240" r="72" fill="#ffffff" opacity="0.98"/>
+  <!-- Center sati dot -->
+  <circle cx="256" cy="240" r="28" fill="#4f46e5"/>
+  <!-- Soft base reflection -->
+  <ellipse cx="256" cy="390" rx="90" ry="18" fill="#ffffff" opacity="0.18"/>
+  <!-- Subtle mood marks (left soft, right soft) -->
+  <circle cx="150" cy="150" r="10" fill="#ffffff" opacity="0.35"/>
+  <circle cx="362" cy="150" r="10" fill="#ffffff" opacity="0.35"/>
 </svg>
