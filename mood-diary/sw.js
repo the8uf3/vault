@@ -1,4 +1,4 @@
-const CACHE_NAME = 'me-sati-v3';
+const CACHE_NAME = 'me-sati-v4';
 const ASSETS = [
   './',
   './index.html',

@@ -144,6 +144,9 @@ html, body {
   margin-bottom: 16px;
   box-shadow: var(--shadow);
   border: 1px solid var(--border);
+  overflow: hidden;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .card-title {
@@ -365,8 +368,12 @@ input:focus, textarea:focus, select:focus {
 
 .calendar-grid {
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 4px;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 3px;
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+  box-sizing: border-box;
 }
 
 .cal-day-name {
@@ -375,6 +382,7 @@ input:focus, textarea:focus, select:focus {
   color: var(--text-muted);
   padding: 4px 0;
   font-weight: 600;
+  min-width: 0;
 }
 
 .cal-day {
@@ -389,6 +397,10 @@ input:focus, textarea:focus, select:focus {
   border: 1px solid transparent;
   position: relative;
   background: var(--bg);
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  box-sizing: border-box;
 }
 
 .cal-day.empty {
@@ -715,19 +727,25 @@ input:focus, textarea:focus, select:focus {
 .cal-day {
   flex-direction: column;
   justify-content: center;
-  padding: 2px;
-  min-height: 44px;
+  padding: 2px 1px;
+  min-height: 0;
 }
 .cal-num {
-  font-size: 0.85rem;
-  line-height: 1.2;
+  font-size: 0.8rem;
+  line-height: 1.15;
+  flex-shrink: 0;
 }
 .cal-summary {
-  font-size: 0.55rem;
+  font-size: 0.5rem;
   line-height: 1.1;
   opacity: 0.9;
   margin-top: 1px;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
+  text-align: center;
+  padding: 0 1px;
 }
 
 /* Intensity buttons */
