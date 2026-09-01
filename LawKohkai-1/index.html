@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <meta name="theme-color" content="#0f766e">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>เกมตะลุยข้อสอบครูผู้ช่วย | วิชาชีพครู</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📚</text></svg>">
+<style>
+:root {
+  --bg: #0f172a;
+  --card: #1e293b;
+  --accent: #14b8a6;
+  --accent2: #f59e0b;
+  --danger: #ef4444;
+  --success: #22c55e;
+  --text: #f1f5f9;
+  --muted: #94a3b8;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Sarabun', 'Segoe UI', system-ui, sans-serif;
+  background: linear-gradient(160deg, #0f172a 0%, #134e4a 100%);
+  color: var(--text);
+  min-height: 100dvh;
+  overflow-x: hidden;
+}
+.app { max-width: 520px; margin: 0 auto; padding: 12px; min-height: 100dvh; display: flex; flex-direction: column; }
+header {
+  text-align: center; padding: 16px 8px 8px;
+}
+header h1 { font-size: 1.35rem; font-weight: 700; letter-spacing: -0.02em; }
+header p { color: var(--muted); font-size: 0.85rem; margin-top: 4px; }
+.screen { display: none; flex: 1; flex-direction: column; }
+.screen.active { display: flex; }
+.level-grid { display: grid; gap: 10px; margin-top: 12px; }
+.level-card {
+  background: var(--card);
+  border-radius: 14px;
+  padding: 14px 16px;
+  border: 1px solid #334155;
+  cursor: pointer;
+  transition: transform .15s, border-color .15s;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.level-card:active { transform: scale(0.98); }
+.level-card:hover { border-color: var(--accent); }
+.level-card .info h3 { font-size: 0.95rem; margin-bottom: 2px; }
+.level-card .info span { font-size: 0.75rem; color: var(--muted); }
+.badge {
+  background: #0f766e33; color: var(--accent);
+  font-size: 0.7rem; padding: 4px 8px; border-radius: 999px; font-weight: 600;
+}
+.progress-bar {
+  height: 6px; background: #334155; border-radius: 3px; margin-top: 8px; overflow: hidden;
+}
+.progress-fill { height: 100%; background: var(--accent); border-radius: 3px; transition: width .3s; }
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  background: var(--accent); color: #042f2e; border: none; border-radius: 12px;
+  padding: 12px 20px; font-size: 1rem; font-weight: 700; cursor: pointer;
+  transition: opacity .15s, transform .1s;
+}
+.btn:active { transform: scale(0.97); }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.btn-outline {
+  background: transparent; border: 1.5px solid #475569; color: var(--text);
+}
+.btn-danger { background: var(--danger); color: white; }
+.btn-row { display: flex; gap: 10px; margin-top: 16px; }
+.btn-row .btn { flex: 1; }
+
+/* Quiz */
+.quiz-header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 8px 0 12px; border-bottom: 1px solid #334155; margin-bottom: 12px;
+}
+.quiz-header .score { font-weight: 700; color: var(--accent2); }
+.q-num { font-size: 0.8rem; color: var(--muted); }
+.question-box {
+  background: var(--card); border-radius: 16px; padding: 18px;
+  border: 1px solid #334155; margin-bottom: 14px; line-height: 1.55;
+  font-size: 1.02rem;
+}
+.options { display: flex; flex-direction: column; gap: 8px; }
+.opt {
+  background: #0f172a; border: 1.5px solid #334155; border-radius: 12px;
+  padding: 12px 14px; text-align: left; cursor: pointer; font-size: 0.95rem;
+  transition: border-color .15s, background .15s; display: flex; gap: 10px; align-items: flex-start;
+}
+.opt:hover { border-color: var(--accent); }
+.opt .letter {
+  flex-shrink: 0; width: 26px; height: 26px; border-radius: 50%;
+  background: #1e293b; display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 0.85rem; color: var(--accent);
+}
+.opt.correct { border-color: var(--success); background: #14532d44; }
+.opt.wrong { border-color: var(--danger); background: #7f1d1d44; }
+.opt.disabled { pointer-events: none; opacity: 0.85; }
+.feedback {
+  margin-top: 12px; padding: 10px 14px; border-radius: 10px; font-size: 0.9rem;
+  display: none;
+}
+.feedback.show { display: block; }
+.feedback.ok { background: #14532d55; color: #86efac; }
+.feedback.bad { background: #7f1d1d55; color: #fca5a5; }
+
+/* Result */
+.result-card {
+  background: var(--card); border-radius: 18px; padding: 24px; text-align: center;
+  border: 1px solid #334155; margin-top: 20px;
+}
+.result-card .big-score { font-size: 3rem; font-weight: 800; color: var(--accent); }
+.result-card .stars { font-size: 1.8rem; margin: 8px 0; letter-spacing: 4px; }
+.stat-row { display: flex; justify-content: space-around; margin: 16px 0; }
+.stat-row div { text-align: center; }
+.stat-row .n { font-size: 1.4rem; font-weight: 700; }
+.stat-row .l { font-size: 0.75rem; color: var(--muted); }
+
+.footer-note {
+  text-align: center; font-size: 0.7rem; color: #64748b; margin-top: auto; padding: 16px 0 8px;
+}
+.toast {
+  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(100px);
+  background: #1e293b; color: white; padding: 10px 18px; border-radius: 10px;
+  font-size: 0.85rem; border: 1px solid #334155; transition: transform .3s; z-index: 99;
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
+.mode-toggle {
+  display: flex; gap: 6px; margin: 10px 0; justify-content: center;
+}
+.mode-toggle button {
+  background: #1e293b; border: 1px solid #334155; color: var(--muted);
+  padding: 6px 14px; border-radius: 999px; font-size: 0.8rem; cursor: pointer;
+}
+.mode-toggle button.active { background: var(--accent); color: #042f2e; border-color: var(--accent); font-weight: 600; }
+
+.level-actions{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+.level-actions button{font-size:.75rem;padding:6px 12px;border-radius:8px;border:none;cursor:pointer;font-family:inherit}
+.btn-continue{background:#14b8a6;color:#fff}
+.btn-wrong{background:#f59e0b;color:#fff}
+.btn-restart{background:#334155;color:#e2e8f0}
+.wrong-badge{background:#f59e0b;color:#fff;font-size:.7rem;padding:2px 8px;border-radius:10px;margin-left:6px}
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- HOME -->
+  <div id="home" class="screen active">
+    <header>
+      <h1>📚 ตะลุยข้อสอบครูผู้ช่วย</h1>
+      <p>จิตวิทยา • ศาสตร์การสอน • วัดผล • ประกันคุณภาพ • ข้อมูลเก็บบนเครื่องคุณเท่านั้น</p>
+    </header>
+    <div class="mode-toggle">
+      <button class="active" data-mode="practice">ฝึกซ้อม</button>
+      <button data-mode="exam">จำลองสอบ</button>
+    </div>
+    <div class="level-grid" id="levelGrid"></div>
+    <div class="btn-row" style="margin-top:20px">
+      <button class="btn btn-outline" onclick="resetAllProgress()">ล้างประวัติทั้งหมด</button>
+    </div>
+    <p class="footer-note">PWA • Offline • localStorage • ไม่ส่งข้อมูลออกนอกเครื่อง</p>
+  </div>
+
+  <!-- QUIZ -->
+  <div id="quiz" class="screen">
+    <div class="quiz-header">
+      <button class="btn btn-outline" style="padding:6px 12px;font-size:0.85rem" onclick="goHome()">← กลับ</button>
+      <div class="q-num" id="qProgress">1 / 40</div>
+      <div class="score" id="liveScore">0 คะแนน</div>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="qBar" style="width:0%"></div></div>
+    <div class="question-box" id="qText"></div>
+    <div class="options" id="opts"></div>
+    <div class="feedback" id="feedback"></div>
+    <div class="btn-row">
+      <button class="btn" id="nextBtn" style="display:none" onclick="nextQ()">ข้อถัดไป →</button>
+    </div>
+  </div>
+
+  <!-- RESULT -->
+  <div id="result" class="screen">
+    <div class="result-card">
+      <div class="stars" id="stars">★★★</div>
+      <div class="big-score" id="finalScore">0%</div>
+      <p id="resultMsg">ยอดเยี่ยม!</p>
+      <div class="stat-row">
+        <div><div class="n" id="rCorrect">0</div><div class="l">ถูก</div></div>
+        <div><div class="n" id="rWrong">0</div><div class="l">ผิด</div></div>
+        <div><div class="n" id="rTotal">0</div><div class="l">ทั้งหมด</div></div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-outline" onclick="goHome()">หน้าหลัก</button>
+        <button class="btn" onclick="retryLevel()">เล่นอีกครั้ง</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const STORAGE_KEY = 'teacherQuizProgress_v2_edu';
+let QUESTIONS = {};
+let wrongOnlyMode = false;
+let mode = 'practice'; // practice | exam
+let currentLevel = null;
+let currentQs = [];
+let idx = 0;
+let score = 0;
+let answered = false;
+
+function loadData() {
+  const el = document.getElementById('qdata');
+  if (el && el.textContent && el.textContent.trim().length > 10) {
+    try {
+      QUESTIONS = JSON.parse(el.textContent);
+      renderLevels();
+      return;
+    } catch (e) { console.error(e); }
+  }
+  fetch('questions.json')
+    .then(r => {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json();
+    })
+    .then(d => {
+      QUESTIONS = d;
+      renderLevels();
+    })
+    .catch(e => {
+      console.error(e);
+      toast('โหลดข้อสอบไม่สำเร็จ');
+    });
+}
+
+function getProgress() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); }
+  catch { return {}; }
+}
+function saveProgress(data) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+}
+// แยก progress ตามโหมด ฝึกซ้อม / จำลองสอบ
+function progKey(name) {
+  return name + '::' + (mode || 'practice');
+}
+function getLevelProg(name) {
+  const prog = getProgress();
+  return prog[progKey(name)] || {};
+}
+function setLevelProg(name, p) {
+  const prog = getProgress();
+  prog[progKey(name)] = p;
+  saveProgress(prog);
+}
+
+function renderLevels() {
+  const grid = document.getElementById('levelGrid');
+  const prog = getProgress();
+  grid.innerHTML = '';
+  const keys = Object.keys(QUESTIONS);
+  keys.forEach((name, i) => {
+    const qs = QUESTIONS[name];
+    if (!qs || !qs.length) return;
+    const p = getLevelProg(name);
+    const played = p.played || p.plays || 0;
+    const best = p.best || 0;
+    const answered = p.answered || 0;
+    const lastIdx = p.lastIdx || 0;
+    const wrongs = (p.wrongIds || []);
+    const pct = Math.round((best / qs.length) * 100) || 0;
+    const card = document.createElement('div');
+    card.className = 'level-card';
+    card.innerHTML = `
+      <div class="info" style="flex:1;cursor:pointer" data-start="1">
+        <h3>${i+1}. ${name}</h3>
+        <span>${qs.length} ข้อ · เล่นแล้ว ${played} ครั้ง · ทำไปแล้ว ${answered}/${qs.length} · สูงสุด ${best}</span>
+        <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+        <div class="level-actions"></div>
+      </div>
+      <div class="badge">${pct}%</div>`;
+    const actions = card.querySelector('.level-actions');
+    // เริ่มใหม่
+    const bStart = document.createElement('button');
+    bStart.className = 'btn-restart';
+    bStart.textContent = 'เริ่มใหม่';
+    bStart.onclick = (e) => { e.stopPropagation(); startLevel(name, 0, false); };
+    actions.appendChild(bStart);
+    // ทำต่อ
+    if (lastIdx > 0 && lastIdx < qs.length) {
+      const bCont = document.createElement('button');
+      bCont.className = 'btn-continue';
+      bCont.textContent = 'ทำต่อข้อ ' + (lastIdx + 1);
+      bCont.onclick = (e) => { e.stopPropagation(); startLevel(name, lastIdx, false); };
+      actions.appendChild(bCont);
+    }
+    // ข้อผิด
+    if (wrongs.length > 0) {
+      const bWrong = document.createElement('button');
+      bWrong.className = 'btn-wrong';
+      bWrong.textContent = 'ทบทวนข้อผิด (' + wrongs.length + ')';
+      bWrong.onclick = (e) => { e.stopPropagation(); startLevel(name, 0, true); };
+      actions.appendChild(bWrong);
+    }
+    card.querySelector('[data-start]').onclick = () => startLevel(name, 0, false);
+    grid.appendChild(card);
+  });
+}
+
+function startLevel(name, resumeIdx, wrongOnly) {
+  currentLevel = name;
+  wrongOnlyMode = !!wrongOnly;
+  const p = getLevelProg(name);
+  let pool;
+  if (wrongOnly && p.wrongIds && p.wrongIds.length) {
+    const all = QUESTIONS[name];
+    const idSet = new Set(p.wrongIds);
+    pool = all.filter(q => idSet.has(q.id));
+    if (!pool.length) pool = [...all];
+  } else {
+    pool = [...QUESTIONS[name]];
+    // ฝึกซ้อม: เรียงตามกลุ่มประเภท
+    // จำลองสอบ: สุ่มทั้งด่าน (ครบทุกข้อ)
+    if (mode === 'exam') {
+      for (let i = pool.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [pool[i], pool[j]] = [pool[j], pool[i]];
+      }
+    }
+  }
+  currentQs = pool;
+  idx = resumeIdx || 0;
+  if (idx >= currentQs.length) idx = 0;
+  score = p.lastScore || 0;
+  if (!resumeIdx) score = 0;
+  showScreen('quiz');
+  showQ();
+}
+
+function showQ() {
+  answered = false;
+  const q = currentQs[idx];
+  document.getElementById('qProgress').textContent = `${idx+1} / ${currentQs.length}`;
+  document.getElementById('liveScore').textContent = `${score} คะแนน`;
+  document.getElementById('qBar').style.width = `${((idx)/currentQs.length)*100}%`;
+  document.getElementById('qText').textContent = q.q || '(ไม่มีข้อความคำถาม)';
+  document.getElementById('feedback').className = 'feedback';
+  document.getElementById('nextBtn').style.display = 'none';
+
+  const optsEl = document.getElementById('opts');
+  optsEl.innerHTML = '';
+  // รองรับทุกตัวเลือก ทั้ง ก-ง, A-Q, จ-ซ
+  const letters = Object.keys(q.opts || {}).sort((a,b) => {
+    const order = 'ABCDEFGHIJKLMNOPQRSTUVWXYZกขคงจฉชซฌญฎฏฐฑฒณดตถทธนบปผฝพฟภมยรลวศษสหฬอฮ';
+    return order.indexOf(a) - order.indexOf(b);
+  });
+  const optCount = letters.length;
+  letters.forEach(L => {
+    const btn = document.createElement('button');
+    btn.className = 'opt';
+    btn.innerHTML = `<span class="letter">${L}</span><span>${q.opts[L]}</span>`;
+    btn.onclick = () => selectOpt(L, btn);
+    optsEl.appendChild(btn);
+  });
+  // ปุ่มดูเฉลย ถ้าตัวเลือกไม่ครบ
+  if (optCount < 2) {
+    const rev = document.createElement('button');
+    rev.className = 'btn';
+    rev.style.marginTop = '12px';
+    rev.textContent = 'ดูเฉลย';
+    rev.onclick = () => {
+      if (answered) return;
+      answered = true;
+      const fb = document.getElementById('feedback');
+      fb.className = 'feedback show ok';
+      fb.textContent = '✅ เฉลย: ' + q.a + (q.opts[q.a] ? ' — ' + q.opts[q.a] : '');
+      document.getElementById('nextBtn').style.display = 'flex';
+      if (idx === currentQs.length - 1) document.getElementById('nextBtn').textContent = 'ดูผลคะแนน';
+    };
+    optsEl.appendChild(rev);
+  }
+}
+
+function selectOpt(letter, btn) {
+  if (answered) return;
+  answered = true;
+  const q = currentQs[idx];
+  const correct = q.a;
+  const all = document.querySelectorAll('.opt');
+  all.forEach(el => el.classList.add('disabled'));
+
+  const fb = document.getElementById('feedback');
+  if (letter === correct) {
+    score++;
+    btn.classList.add('correct');
+    fb.className = 'feedback show ok';
+    fb.innerHTML = '✅ ถูกต้อง!' + (q.e ? '<div style="margin-top:6px;opacity:.95;font-size:.88rem;line-height:1.45">'+q.e+'</div>' : '');
+    // ลบออกจากรายการข้อผิด
+    try {
+      const pp = getLevelProg(currentLevel);
+      if (pp.wrongIds) {
+        pp.wrongIds = pp.wrongIds.filter(id => id !== q.id);
+        setLevelProg(currentLevel, pp);
+      }
+    } catch(e) {}
+  } else {
+    btn.classList.add('wrong');
+    all.forEach(el => {
+      if (el.querySelector('.letter') && el.querySelector('.letter').textContent === correct)
+        el.classList.add('correct');
+    });
+    fb.className = 'feedback show bad';
+    fb.innerHTML = '❌ ผิด — เฉลยข้อ <b>' + correct + '</b>' + (q.opts[correct] ? ': ' + q.opts[correct] : '') + (q.e ? '<div style="margin-top:6px;opacity:.95;font-size:.88rem;line-height:1.45">'+q.e+'</div>' : '');
+    // เก็บข้อที่ผิด (แยกตามโหมด)
+    try {
+      const pp = getLevelProg(currentLevel);
+      if (!pp.wrongIds) pp.wrongIds = [];
+      if (!pp.wrongIds.includes(q.id)) pp.wrongIds.push(q.id);
+      setLevelProg(currentLevel, pp);
+    } catch(e) {}
+  }
+  // บันทึกความคืบหน้า + ข้อล่าสุด (แยกตามโหมด)
+  try {
+    const p2 = getLevelProg(currentLevel);
+    p2.lastIdx = idx + 1;
+    p2.answered = Math.max(p2.answered || 0, idx + 1);
+    p2.lastScore = score;
+    setLevelProg(currentLevel, p2);
+  } catch(e) {}
+
+  document.getElementById('nextBtn').style.display = 'flex';
+  if (idx === currentQs.length - 1) {
+    document.getElementById('nextBtn').textContent = 'ดูผลคะแนน';
+  }
+}
+
+function nextQ() {
+  if (idx >= currentQs.length - 1) {
+    finish();
+    return;
+  }
+  idx++;
+  showQ();
+}
+
+function finish() {
+  const total = currentQs.length;
+  const pct = Math.round((score / total) * 100);
+  // save (แยกตามโหมด)
+  const prev = getLevelProg(currentLevel);
+  if (!prev._partial) {
+    prev.played = (prev.played || prev.plays || 0) + 1;
+  }
+  delete prev._partial;
+  delete prev.plays;
+  prev.last = score;
+  prev.answered = total;
+  prev.lastIdx = 0;
+  prev.lastScore = score;
+  if (score > (prev.best || 0)) prev.best = score;
+  setLevelProg(currentLevel, prev);
+
+  document.getElementById('finalScore').textContent = pct + '%';
+  document.getElementById('rCorrect').textContent = score;
+  document.getElementById('rWrong').textContent = total - score;
+  document.getElementById('rTotal').textContent = total;
+  let stars = '★☆☆';
+  let msg = 'พยายามต่อไปนะ!';
+  if (pct >= 90) { stars = '★★★'; msg = 'ยอดเยี่ยมมาก! พร้อมสอบจริงแล้ว'; }
+  else if (pct >= 70) { stars = '★★☆'; msg = 'ดีมาก เกือบเต็มแล้ว'; }
+  else if (pct >= 50) { stars = '★☆☆'; msg = 'พอใช้ ฝึกเพิ่มอีกนิด'; }
+  document.getElementById('stars').textContent = stars;
+  document.getElementById('resultMsg').textContent = msg;
+  showScreen('result');
+}
+
+function retryLevel() {
+  if (currentLevel) startLevel(currentLevel);
+}
+
+function goHome() {
+  // บันทึกความคืบหน้าบางส่วน ถ้าออกกลางด่าน
+  if (currentLevel && currentQs.length > 0 && idx > 0) {
+    const p = getProgress();
+    if (!p[currentLevel]) p[currentLevel] = { played: 0, best: 0, last: 0, answered: 0 };
+    p[currentLevel].answered = Math.max(p[currentLevel].answered || 0, idx);
+    p[currentLevel].lastIdx = idx;
+    p[currentLevel].lastScore = score;
+    p[currentLevel].last = Math.max(p[currentLevel].last || 0, score);
+    // นับเป็น plays เฉพาะเมื่อตอบอย่างน้อย 1 ข้อ
+    if (idx >= 1 && !(p[currentLevel]._partial)) {
+      p[currentLevel].played = (p[currentLevel].played || p[currentLevel].plays || 0) + 1;
+      p[currentLevel]._partial = true;
+    }
+    saveProgress(p);
+  }
+  showScreen('home');
+  renderLevels();
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function resetAllProgress() {
+  if (confirm('ลบประวัติการเล่นทั้งหมดบนเครื่องนี้?')) {
+    localStorage.removeItem(STORAGE_KEY);
+    renderLevels();
+    toast('ล้างประวัติแล้ว');
+  }
+}
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+// mode toggle
+document.querySelectorAll('.mode-toggle button').forEach(b => {
+  b.onclick = () => {
+    document.querySelectorAll('.mode-toggle button').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    mode = b.dataset.mode;
+  };
+});
+
+// SW
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js').catch(()=>{});
+}
+
+loadData();
+
+// สลับโหมด ฝึกซ้อม / จำลองสอบ — แยก progress
+document.querySelectorAll('[data-mode]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('[data-mode]').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    mode = btn.getAttribute('data-mode') || 'practice';
+    renderLevels(); // รีเฟรชการ์ดตาม progress ของโหมดนั้น
+  });
+});
+
+</script>
+</body>
+</html>
